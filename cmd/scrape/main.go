@@ -6,17 +6,19 @@ import (
 
 	epub "github.com/bmaupin/go-epub"
 
-	rr "github.com/arkhaix/lit-reader/scraper/royalroad"
+	scraper "github.com/arkhaix/lit-reader/scraper/fictionpress"
+	_ "github.com/arkhaix/lit-reader/scraper/royalroad"
 )
 
 func main() {
 	// Parse input
-	url := flag.String("url", "https://www.royalroad.com/fiction/5701/savage-divinity", "Story URL")
+	// url := flag.String("url", "https://www.royalroad.com/fiction/5701/savage-divinity", "Story URL")
+	url := flag.String("url", "https://www.fictionpress.com/s/2961893/1/Mother-of-Learning", "Story URL")
 	epubFile := flag.String("epub", "test.epub", "Output epub file")
 	flag.Parse()
 
 	// Validate
-	if !rr.IsSupportedStoryURL(*url) {
+	if !scraper.IsSupportedStoryURL(*url) {
 		panic("Unsupported story URL")
 	}
 	if len(*epubFile) == 0 {
@@ -25,7 +27,7 @@ func main() {
 
 	// Fetch metadata
 	fmt.Println("Fetching metadata for", *url)
-	story, err := rr.FetchStoryMetadata(*url)
+	story, err := scraper.FetchStoryMetadata(*url)
 	if err != nil {
 		panic(err)
 	}
@@ -38,7 +40,7 @@ func main() {
 	chapterIndex := len(story.Chapters) - 1
 	// chapterIndex := 0
 	fmt.Println("Fetching chapter", chapterIndex)
-	err = rr.FetchChapter(&story, chapterIndex)
+	err = scraper.FetchChapter(&story, chapterIndex)
 	if err != nil {
 		panic(err)
 	}
