@@ -6,15 +6,15 @@ import (
 
 	epub "github.com/bmaupin/go-epub"
 
-	scraper "github.com/arkhaix/lit-reader/scraper/fictionpress"
-	_ "github.com/arkhaix/lit-reader/scraper/royalroad"
+	"github.com/arkhaix/lit-reader/scraper"
 )
 
 func main() {
 	// Parse input
 	// url := flag.String("url", "https://www.royalroad.com/fiction/5701/savage-divinity", "Story URL")
-	url := flag.String("url", "https://www.fictionpress.com/s/2961893/1/Mother-of-Learning", "Story URL")
-	epubFile := flag.String("epub", "test.epub", "Output epub file")
+	// url := flag.String("url", "https://www.fictionpress.com/s/2961893/1/Mother-of-Learning", "Story URL")
+	url := flag.String("url", "", "Story URL")
+	epubFile := flag.String("epub", "out.epub", "Output epub file")
 	flag.Parse()
 
 	// Validate

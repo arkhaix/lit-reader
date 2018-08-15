@@ -1,4 +1,4 @@
-package royalroad
+package fictionpress
 
 import (
 	"errors"
@@ -12,6 +12,15 @@ import (
 
 	lit "github.com/arkhaix/lit-reader/common"
 )
+
+// FictionPressScraper implements Scraper
+type FictionPressScraper struct {
+}
+
+// NewScraper returns an empty FictionPressScraper
+func NewScraper() FictionPressScraper {
+	return FictionPressScraper{}
+}
 
 var baseURL *url.URL
 var storyPattern []*regexp.Regexp
@@ -32,7 +41,7 @@ func init() {
 
 // IsSupportedStoryURL returns true if the specified URL matches the expected
 // pattern of a story supported by this parser
-func IsSupportedStoryURL(path string) bool {
+func (FictionPressScraper) IsSupportedStoryURL(path string) bool {
 	u, err := url.Parse(path)
 	if err != nil {
 		return false
@@ -55,11 +64,11 @@ func IsSupportedStoryURL(path string) bool {
 }
 
 // FetchStoryMetadata fetches the title, author, and chapter index of a story
-func FetchStoryMetadata(path string) (lit.Story, error) {
+func (scraper FictionPressScraper) FetchStoryMetadata(path string) (lit.Story, error) {
 	story := lit.Story{}
 
 	// validate
-	if IsSupportedStoryURL(path) == false {
+	if scraper.IsSupportedStoryURL(path) == false {
 		return story, errors.New("Invalid story URL: " + path)
 	}
 
@@ -131,7 +140,7 @@ func FetchStoryMetadata(path string) (lit.Story, error) {
 }
 
 // FetchChapter fetches the text of one chapter of a story, inserting it into the Story
-func FetchChapter(story *lit.Story, index int) error {
+func (FictionPressScraper) FetchChapter(story *lit.Story, index int) error {
 	// validate
 	if story == nil {
 		return errors.New("Story must not be nil")
