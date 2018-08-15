@@ -42,6 +42,10 @@ func init() {
 // IsSupportedStoryURL returns true if the specified URL matches the expected
 // pattern of a story supported by this parser
 func (FictionPressScraper) IsSupportedStoryURL(path string) bool {
+	if !strings.Contains(path, "://") {
+		path = "https://" + path
+	}
+
 	u, err := url.Parse(path)
 	if err != nil {
 		return false
@@ -68,6 +72,10 @@ func (scraper FictionPressScraper) FetchStoryMetadata(path string) (lit.Story, e
 	story := lit.Story{}
 
 	// validate
+	path, err := forceBaseURL(path)
+	if err != nil {
+		return story, err
+	}
 	if scraper.IsSupportedStoryURL(path) == false {
 		return story, errors.New("Invalid story URL: " + path)
 	}
@@ -148,6 +156,10 @@ func (FictionPressScraper) FetchChapter(story *lit.Story, index int) error {
 	if index < 0 || index >= len(story.Chapters) {
 		return errors.New("Chapter index out of bounds")
 	}
+	chapterURL, err := forceBaseURL(story.Chapters[index].URL)
+	if err != nil {
+		return err
+	}
 
 	// init
 	c := colly.NewCollector(
@@ -162,11 +174,27 @@ func (FictionPressScraper) FetchChapter(story *lit.Story, index int) error {
 	})
 
 	// fetch
-	c.Visit(story.Chapters[index].URL)
+	c.Visit(chapterURL)
 
 	return parseError
 }
 
 func buildChapterURL(storyID string, storySuffix string, chapter int) string {
 	return fmt.Sprintf("%s/s/%s/%d/%s", baseURL, storyID, chapter, storySuffix)
+}
+
+// forceBaseURL rewrites the url to start with baseURL.
+// This forces an https connection instead of whatever protocol is in the url.
+func forceBaseURL(path string) (string, error) {
+	origURL, err := url.Parse(path)
+	if err != nil {
+		return "", err
+	}
+
+	pathOnly, err := url.Parse(origURL.Path)
+	if err != nil {
+		return "", err
+	}
+
+	return baseURL.ResolveReference(pathOnly).String(), nil
 }
