@@ -74,20 +74,20 @@ func (scraper Scraper) FetchStoryMetadata(path string) (lit.Story, error) {
 	// validate
 	path, err := forceBaseURL(path)
 	if err != nil {
-		return story, err
+		return story, lit.NewScraperError(err)
 	}
 	if scraper.IsSupportedStoryURL(path) == false {
-		return story, errors.New("Invalid story URL: " + path)
+		return story, lit.NewScraperErrorString("Invalid story URL: " + path)
 	}
 
 	// Parse the story and chapter parts from the path
 	pathSuffix, err := url.Parse(path)
 	if err != nil {
-		return story, errors.New("Invalid chapter URL: " + path)
+		return story, lit.NewScraperErrorString("Invalid chapter URL: " + path)
 	}
 	matches := chapterPattern.FindStringSubmatch(pathSuffix.Path)
 	if matches == nil || len(matches) < 4 {
-		return story, errors.New("Invalid chapter URL: " + path)
+		return story, lit.NewScraperErrorString("Invalid chapter URL: " + path)
 	}
 	storyID := matches[1]
 	// chapterID := matches[2]
@@ -114,16 +114,16 @@ func (scraper Scraper) FetchStoryMetadata(path string) (lit.Story, error) {
 	})
 
 	// chapter index
-	var parseError error
+	var callbackError error
 	c.OnHTML("#chap_select > option", func(e *colly.HTMLElement) {
 		chapterIndex, err := strconv.Atoi(e.Attr("value"))
 		if err != nil {
-			parseError = err
+			callbackError = err
 		}
 
 		chapterTitleMatches := chapterSelectPattern.FindStringSubmatch(e.Text)
 		if chapterTitleMatches == nil || len(chapterTitleMatches) < 2 {
-			parseError = errors.New("Failed to parse the chapter titles")
+			callbackError = errors.New("Failed to parse the chapter titles")
 		}
 		chapterTitle := chapterTitleMatches[1]
 
@@ -142,9 +142,19 @@ func (scraper Scraper) FetchStoryMetadata(path string) (lit.Story, error) {
 		})
 	})
 
+	// errors
+	c.OnError(func(r *colly.Response, err error) {
+		if err != nil {
+			callbackError = err
+		}
+	})
+
 	c.Visit(path)
 
-	return story, parseError
+	if callbackError != nil {
+		return story, lit.NewScraperError(callbackError)
+	}
+	return story, nil
 }
 
 // FetchChapter fetches the text of one chapter of a story, inserting it into the Story
@@ -167,16 +177,29 @@ func (Scraper) FetchChapter(story *lit.Story, index int) error {
 	)
 
 	// parse
-	var parseError error
+	var callbackError error
 	c.OnHTML("#storytext", func(e *colly.HTMLElement) {
 		story.Chapters[index].Text = strings.TrimSpace(e.Text)
-		story.Chapters[index].HTML, parseError = e.DOM.Html()
+		story.Chapters[index].HTML, err = e.DOM.Html()
+		if err != nil {
+			callbackError = err
+		}
+	})
+
+	// errors
+	c.OnError(func(r *colly.Response, err error) {
+		if err != nil {
+			callbackError = err
+		}
 	})
 
 	// fetch
 	c.Visit(chapterURL)
 
-	return parseError
+	if callbackError != nil {
+		return lit.NewScraperError(callbackError)
+	}
+	return nil
 }
 
 func buildChapterURL(storyID string, storySuffix string, chapter int) string {
