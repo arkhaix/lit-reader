@@ -1,8 +1,6 @@
 package royalroad
 
 import (
-	"errors"
-	"fmt"
 	"net/url"
 	"regexp"
 	"strings"
@@ -56,10 +54,10 @@ func (scraper Scraper) FetchStoryMetadata(path string) (lit.Story, error) {
 	// validate
 	path, err := forceBaseURL(path)
 	if err != nil {
-		return story, errors.New("Invalid story URL: " + path)
+		return story, lit.NewScraperErrorString("Invalid story URL: " + path)
 	}
 	if scraper.IsSupportedStoryURL(path) == false {
-		return story, errors.New("Invalid story URL: " + path)
+		return story, lit.NewScraperErrorString("Invalid story URL: " + path)
 	}
 
 	// init
@@ -80,12 +78,12 @@ func (scraper Scraper) FetchStoryMetadata(path string) (lit.Story, error) {
 	})
 
 	// chapter index
+	var callbackError error
 	c.OnHTML("#chapters tbody tr td a[href]", func(e *colly.HTMLElement) {
 		link := e.Attr("href")
 		linkURL, err := url.Parse(link)
 		if err != nil {
-			fmt.Println("Error parsing link", link)
-			fmt.Println(err)
+			callbackError = err
 		}
 		absoluteLink := baseURL.ResolveReference(linkURL)
 		linkText := strings.TrimSpace(e.Text)
@@ -99,6 +97,12 @@ func (scraper Scraper) FetchStoryMetadata(path string) (lit.Story, error) {
 
 	c.Visit(path)
 
+	if callbackError != nil {
+		return story, lit.ScraperError{
+			Err: callbackError,
+		}
+	}
+
 	return story, nil
 }
 
@@ -106,10 +110,10 @@ func (scraper Scraper) FetchStoryMetadata(path string) (lit.Story, error) {
 func (Scraper) FetchChapter(story *lit.Story, index int) error {
 	// validate
 	if story == nil {
-		return errors.New("Story must not be nil")
+		return lit.NewScraperErrorString("Story must not be nil")
 	}
 	if index < 0 || index >= len(story.Chapters) {
-		return errors.New("Chapter index out of bounds")
+		return lit.NewScraperErrorString("Chapter index out of bounds")
 	}
 	chapterURL, err := forceBaseURL(story.Chapters[index].URL)
 	if err != nil {
@@ -122,16 +126,29 @@ func (Scraper) FetchChapter(story *lit.Story, index int) error {
 	)
 
 	// parse
-	var parseError error
+	var callbackError error
 	c.OnHTML(".chapter-content", func(e *colly.HTMLElement) {
 		story.Chapters[index].Text = strings.TrimSpace(e.Text)
-		story.Chapters[index].HTML, parseError = e.DOM.Html()
+		story.Chapters[index].HTML, err = e.DOM.Html()
+		if err != nil {
+			callbackError = err
+		}
+	})
+
+	// errors
+	c.OnError(func(r *colly.Response, err error) {
+		if err != nil {
+			callbackError = err
+		}
 	})
 
 	// fetch
 	c.Visit(chapterURL)
 
-	return parseError
+	if callbackError != nil {
+		return lit.NewScraperError(callbackError)
+	}
+	return nil
 }
 
 // forceBaseURL rewrites the url to start with baseURL.
