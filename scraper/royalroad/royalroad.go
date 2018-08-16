@@ -32,6 +32,10 @@ func init() {
 // IsSupportedStoryURL returns true if the specified URL matches the expected
 // pattern of a story supported by this parser
 func (RoyalRoadScraper) IsSupportedStoryURL(path string) bool {
+	if !strings.Contains(path, "://") {
+		path = "https://" + path
+	}
+
 	u, err := url.Parse(path)
 	if err != nil {
 		return false
@@ -50,6 +54,10 @@ func (scraper RoyalRoadScraper) FetchStoryMetadata(path string) (lit.Story, erro
 	story := lit.Story{}
 
 	// validate
+	path, err := forceBaseURL(path)
+	if err != nil {
+		return story, errors.New("Invalid story URL: " + path)
+	}
 	if scraper.IsSupportedStoryURL(path) == false {
 		return story, errors.New("Invalid story URL: " + path)
 	}
@@ -103,6 +111,10 @@ func (RoyalRoadScraper) FetchChapter(story *lit.Story, index int) error {
 	if index < 0 || index >= len(story.Chapters) {
 		return errors.New("Chapter index out of bounds")
 	}
+	chapterURL, err := forceBaseURL(story.Chapters[index].URL)
+	if err != nil {
+		return err
+	}
 
 	// init
 	c := colly.NewCollector(
@@ -117,7 +129,23 @@ func (RoyalRoadScraper) FetchChapter(story *lit.Story, index int) error {
 	})
 
 	// fetch
-	c.Visit(story.Chapters[index].URL)
+	c.Visit(chapterURL)
 
 	return parseError
+}
+
+// forceBaseURL rewrites the url to start with baseURL.
+// This forces an https connection instead of whatever protocol is in the url.
+func forceBaseURL(path string) (string, error) {
+	origURL, err := url.Parse(path)
+	if err != nil {
+		return "", err
+	}
+
+	pathOnly, err := url.Parse(origURL.Path)
+	if err != nil {
+		return "", err
+	}
+
+	return baseURL.ResolveReference(pathOnly).String(), nil
 }
