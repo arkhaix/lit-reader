@@ -53,3 +53,11 @@ func TestRoyalRoadIntegration(t *testing.T) {
 	assert.Equal(t, expectedTextSum, textSumStr, "Chapter text must match")
 	assert.Equal(t, expectedHTMLSum, htmlSumStr, "Chapter HTML must match")
 }
+
+func TestFetchStoryWithWrongDomainRewrites(t *testing.T) {
+	s := NewScraper()
+	story, err := s.FetchStoryMetadata("https://www.example.com/fiction/15130/threadbare")
+	assert.Nil(t, err)
+	assert.Equal(t, "https://www.royalroad.com/fiction/15130/threadbare", story.URL,
+		"Incorrect domain must be rewritten")
+}
