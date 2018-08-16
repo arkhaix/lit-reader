@@ -4,6 +4,7 @@ import (
 	"errors"
 
 	lit "github.com/arkhaix/lit-reader/common"
+	"github.com/arkhaix/lit-reader/scraper/archiveofourown"
 	"github.com/arkhaix/lit-reader/scraper/fictionpress"
 	"github.com/arkhaix/lit-reader/scraper/royalroad"
 )
@@ -11,6 +12,7 @@ import (
 var scrapers []lit.Scraper
 
 func init() {
+	scrapers = append(scrapers, archiveofourown.NewScraper())
 	scrapers = append(scrapers, fictionpress.NewScraper())
 	scrapers = append(scrapers, royalroad.NewScraper())
 }
