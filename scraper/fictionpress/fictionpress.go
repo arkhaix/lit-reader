@@ -13,13 +13,13 @@ import (
 	lit "github.com/arkhaix/lit-reader/common"
 )
 
-// FictionPressScraper implements Scraper
-type FictionPressScraper struct {
+// Scraper implements common.Scraper
+type Scraper struct {
 }
 
-// NewScraper returns an empty FictionPressScraper
-func NewScraper() FictionPressScraper {
-	return FictionPressScraper{}
+// NewScraper returns an empty Scraper
+func NewScraper() Scraper {
+	return Scraper{}
 }
 
 var baseURL *url.URL
@@ -41,7 +41,7 @@ func init() {
 
 // IsSupportedStoryURL returns true if the specified URL matches the expected
 // pattern of a story supported by this parser
-func (FictionPressScraper) IsSupportedStoryURL(path string) bool {
+func (Scraper) IsSupportedStoryURL(path string) bool {
 	if !strings.Contains(path, "://") {
 		path = "https://" + path
 	}
@@ -68,7 +68,7 @@ func (FictionPressScraper) IsSupportedStoryURL(path string) bool {
 }
 
 // FetchStoryMetadata fetches the title, author, and chapter index of a story
-func (scraper FictionPressScraper) FetchStoryMetadata(path string) (lit.Story, error) {
+func (scraper Scraper) FetchStoryMetadata(path string) (lit.Story, error) {
 	story := lit.Story{}
 
 	// validate
@@ -148,7 +148,7 @@ func (scraper FictionPressScraper) FetchStoryMetadata(path string) (lit.Story, e
 }
 
 // FetchChapter fetches the text of one chapter of a story, inserting it into the Story
-func (FictionPressScraper) FetchChapter(story *lit.Story, index int) error {
+func (Scraper) FetchChapter(story *lit.Story, index int) error {
 	// validate
 	if story == nil {
 		return errors.New("Story must not be nil")
