@@ -1,6 +1,6 @@
 // +build integration
 
-package royalroad_test
+package archiveofourown_test
 
 import (
 	"crypto/sha256"
@@ -9,16 +9,16 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	. "github.com/arkhaix/lit-reader/scraper/royalroad"
+	. "github.com/arkhaix/lit-reader/scraper/sites/archiveofourown"
 )
 
 var storyURL string
 
 func init() {
-	storyURL = "https://www.royalroad.com/fiction/15130/threadbare"
+	storyURL = "https://archiveofourown.org/works/11478249/chapters/25740126"
 }
 
-func TestRoyalRoadIntegration(t *testing.T) {
+func TestArchiveOfOurOwnIntegration(t *testing.T) {
 	s := NewScraper()
 	story, err := s.FetchStoryMetadata(storyURL)
 	if err != nil {
@@ -26,9 +26,9 @@ func TestRoyalRoadIntegration(t *testing.T) {
 	}
 
 	expectedURL := storyURL
-	expectedTitle := "Threadbare"
-	expectedAuthor := "Andrew Seiple"
-	expectedChapters := 78
+	expectedTitle := "Worth the Candle"
+	expectedAuthor := "cthulhuraejepsen"
+	expectedChapters := 118
 
 	// Validate the story metadata
 	assert.Equal(t, expectedURL, story.URL, "URL must match")
@@ -39,10 +39,10 @@ func TestRoyalRoadIntegration(t *testing.T) {
 	// Validate the data for a chapter
 	s.FetchChapter(&story, 0)
 	c := story.Chapters[0]
-	expectedChapterURL := "https://www.royalroad.com/fiction/15130/threadbare/chapter/175199/awakening-1"
-	expectedChapterTitle := "Awakening 1"
-	expectedTextSum := "b232445b0ad233ff719d198da7588d3bdf3509dfeeba5816d9758ddf00f1bcec"
-	expectedHTMLSum := "2ab31d5b1b2052070978e8c413cbb5c4fb611f2daaa5d69de931e773a35a7e2c"
+	expectedChapterURL := "https://archiveofourown.org/works/11478249/chapters/25740126"
+	expectedChapterTitle := "Taking the Fall"
+	expectedTextSum := "29af0585a00bfbf187a1ac142b7f0648ff217daafc56766c4cdccfaa41a560ba"
+	expectedHTMLSum := "16109d786c5210586ccd1315fa25bb3f4a0edc219df2d472642e7783c5de1944"
 	textSum := sha256.Sum256([]byte(c.Text))
 	textSumStr := fmt.Sprintf("%x", textSum)
 	htmlSum := sha256.Sum256([]byte(c.HTML))
@@ -56,8 +56,8 @@ func TestRoyalRoadIntegration(t *testing.T) {
 
 func TestFetchStoryWithWrongDomainRewrites(t *testing.T) {
 	s := NewScraper()
-	story, err := s.FetchStoryMetadata("https://www.example.com/fiction/15130/threadbare")
+	story, err := s.FetchStoryMetadata("https://example.com/works/11478249/chapters/25740126")
 	assert.Nil(t, err)
-	assert.Equal(t, "https://www.royalroad.com/fiction/15130/threadbare", story.URL,
+	assert.Equal(t, "https://archiveofourown.org/works/11478249/chapters/25740126", story.URL,
 		"Incorrect domain must be rewritten")
 }

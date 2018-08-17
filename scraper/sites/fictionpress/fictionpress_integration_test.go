@@ -1,6 +1,6 @@
 // +build integration
 
-package wanderinginn_test
+package fictionpress_test
 
 import (
 	"crypto/sha256"
@@ -9,26 +9,24 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	. "github.com/arkhaix/lit-reader/scraper/wanderinginn"
+	. "github.com/arkhaix/lit-reader/scraper/sites/fictionpress"
 )
 
 var storyURL string
 
 func init() {
-	storyURL = "https://wanderinginn.com"
+	storyURL = "https://www.fictionpress.com/s/2922431/1/A-Lucky-Apocalypse"
 }
 
-func TestWanderingInnIntegration(t *testing.T) {
+func TestFictionPressIntegration(t *testing.T) {
 	s := NewScraper()
 	story, err := s.FetchStoryMetadata(storyURL)
-	if err != nil {
-		t.Fatal("Failed to fetch the story", storyURL, err)
-	}
+	assert.Nil(t, err, "Failed to fetch the story")
 
 	expectedURL := storyURL
-	expectedTitle := "The Wandering Inn"
-	expectedAuthor := "pirateaba"
-	expectedChapters := 249
+	expectedTitle := "A Lucky Apocalypse"
+	expectedAuthor := "ShaperV"
+	expectedChapters := 4
 
 	// Validate the story metadata
 	assert.Equal(t, expectedURL, story.URL, "URL must match")
@@ -39,10 +37,10 @@ func TestWanderingInnIntegration(t *testing.T) {
 	// Validate the data for a chapter
 	s.FetchChapter(&story, 0)
 	c := story.Chapters[0]
-	expectedChapterURL := "https://wanderinginn.com/2016/07/27/1-00/"
-	expectedChapterTitle := "1.00"
-	expectedTextSum := "1c41ad2677a045895b7c58336662fa745d0469f5832167154a08f360ab13b3d5"
-	expectedHTMLSum := "29543cfb7c01ea294688bca8aeb60afe0badf591aa202d0d51b17876e7ac98cf"
+	expectedChapterURL := "https://www.fictionpress.com/s/2922431/1/A-Lucky-Apocalypse"
+	expectedChapterTitle := "Chapter 1"
+	expectedTextSum := "9c8fa415b39ae1a863c0a82161360d89d7595ff900e608ac661aa74928d803bb"
+	expectedHTMLSum := "20ba190838a61d6ecfbdfaeb810366326220f6a2d9bb774955d9382060be888d"
 	textSum := sha256.Sum256([]byte(c.Text))
 	textSumStr := fmt.Sprintf("%x", textSum)
 	htmlSum := sha256.Sum256([]byte(c.HTML))
@@ -54,8 +52,9 @@ func TestWanderingInnIntegration(t *testing.T) {
 	assert.Equal(t, expectedHTMLSum, htmlSumStr, "Chapter HTML must match")
 }
 
-func TestFetchStoryWithInvalidPathRewrites(t *testing.T) {
-	story, err := s.FetchStoryMetadata("https://wanderinginn.com/invalid")
+func TestFetchStoryWithWrongDomainRewrites(t *testing.T) {
+	story, err := s.FetchStoryMetadata("https://www.example.com/s/2922431/1/A-Lucky-Apocalypse")
 	assert.Nil(t, err)
-	assert.Equal(t, "https://wanderinginn.com", story.URL)
+	assert.Equal(t, "https://www.fictionpress.com/s/2922431/1/A-Lucky-Apocalypse", story.URL,
+		"Incorrect domain must be rewritten")
 }

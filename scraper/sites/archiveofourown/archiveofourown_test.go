@@ -6,7 +6,7 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	lit "github.com/arkhaix/lit-reader/common"
-	. "github.com/arkhaix/lit-reader/scraper/archiveofourown"
+	. "github.com/arkhaix/lit-reader/scraper/sites/archiveofourown"
 )
 
 var s Scraper

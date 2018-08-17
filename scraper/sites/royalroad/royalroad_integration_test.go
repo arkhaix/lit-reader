@@ -1,6 +1,6 @@
 // +build integration
 
-package fictionpress_test
+package royalroad_test
 
 import (
 	"crypto/sha256"
@@ -9,24 +9,26 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	. "github.com/arkhaix/lit-reader/scraper/fictionpress"
+	. "github.com/arkhaix/lit-reader/scraper/sites/royalroad"
 )
 
 var storyURL string
 
 func init() {
-	storyURL = "https://www.fictionpress.com/s/2922431/1/A-Lucky-Apocalypse"
+	storyURL = "https://www.royalroad.com/fiction/15130/threadbare"
 }
 
-func TestFictionPressIntegration(t *testing.T) {
+func TestRoyalRoadIntegration(t *testing.T) {
 	s := NewScraper()
 	story, err := s.FetchStoryMetadata(storyURL)
-	assert.Nil(t, err, "Failed to fetch the story")
+	if err != nil {
+		t.Fatal("Failed to fetch the story", storyURL, err)
+	}
 
 	expectedURL := storyURL
-	expectedTitle := "A Lucky Apocalypse"
-	expectedAuthor := "ShaperV"
-	expectedChapters := 4
+	expectedTitle := "Threadbare"
+	expectedAuthor := "Andrew Seiple"
+	expectedChapters := 78
 
 	// Validate the story metadata
 	assert.Equal(t, expectedURL, story.URL, "URL must match")
@@ -37,10 +39,10 @@ func TestFictionPressIntegration(t *testing.T) {
 	// Validate the data for a chapter
 	s.FetchChapter(&story, 0)
 	c := story.Chapters[0]
-	expectedChapterURL := "https://www.fictionpress.com/s/2922431/1/A-Lucky-Apocalypse"
-	expectedChapterTitle := "Chapter 1"
-	expectedTextSum := "9c8fa415b39ae1a863c0a82161360d89d7595ff900e608ac661aa74928d803bb"
-	expectedHTMLSum := "20ba190838a61d6ecfbdfaeb810366326220f6a2d9bb774955d9382060be888d"
+	expectedChapterURL := "https://www.royalroad.com/fiction/15130/threadbare/chapter/175199/awakening-1"
+	expectedChapterTitle := "Awakening 1"
+	expectedTextSum := "b232445b0ad233ff719d198da7588d3bdf3509dfeeba5816d9758ddf00f1bcec"
+	expectedHTMLSum := "2ab31d5b1b2052070978e8c413cbb5c4fb611f2daaa5d69de931e773a35a7e2c"
 	textSum := sha256.Sum256([]byte(c.Text))
 	textSumStr := fmt.Sprintf("%x", textSum)
 	htmlSum := sha256.Sum256([]byte(c.HTML))
@@ -53,8 +55,9 @@ func TestFictionPressIntegration(t *testing.T) {
 }
 
 func TestFetchStoryWithWrongDomainRewrites(t *testing.T) {
-	story, err := s.FetchStoryMetadata("https://www.example.com/s/2922431/1/A-Lucky-Apocalypse")
+	s := NewScraper()
+	story, err := s.FetchStoryMetadata("https://www.example.com/fiction/15130/threadbare")
 	assert.Nil(t, err)
-	assert.Equal(t, "https://www.fictionpress.com/s/2922431/1/A-Lucky-Apocalypse", story.URL,
+	assert.Equal(t, "https://www.royalroad.com/fiction/15130/threadbare", story.URL,
 		"Incorrect domain must be rewritten")
 }
