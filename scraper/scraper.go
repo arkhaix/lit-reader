@@ -7,6 +7,7 @@ import (
 	"github.com/arkhaix/lit-reader/scraper/archiveofourown"
 	"github.com/arkhaix/lit-reader/scraper/fictionpress"
 	"github.com/arkhaix/lit-reader/scraper/royalroad"
+	"github.com/arkhaix/lit-reader/scraper/wanderinginn"
 )
 
 var scrapers []lit.Scraper
@@ -15,6 +16,7 @@ func init() {
 	scrapers = append(scrapers, archiveofourown.NewScraper())
 	scrapers = append(scrapers, fictionpress.NewScraper())
 	scrapers = append(scrapers, royalroad.NewScraper())
+	scrapers = append(scrapers, wanderinginn.NewScraper())
 }
 
 // IsSupportedStoryURL returns true if the specified URL matches the expected
