@@ -1,0 +1,47 @@
+syntax = "proto3";
+
+package scraper;
+
+service Scraper {
+  // CheckStoryURL returns true if the specified URL matches the expected
+  // pattern of a story supported by this service
+  rpc CheckStoryURL (CheckStoryURLRequest) returns (CheckStoryURLResponse) {}
+
+	// FetchStoryMetadata fetches the title, author, and chapter index of a story,
+  // but not the actual chapter text
+  rpc FetchStoryMetadata (FetchStoryMetadataRequest) returns (FetchStoryMetadataResponse) {}
+
+	// FetchChapter fetches one chapter of a story
+	rpc FetchChapter(FetchChapterRequest) returns (FetchChapterResponse) {}
+}
+
+message CheckStoryURLRequest {
+  string url = 1;
+}
+
+message CheckStoryURLResponse {
+  bool allowed = 1;
+}
+
+message FetchStoryMetadataRequest {
+  string url = 1;
+}
+
+message FetchStoryMetadataResponse {
+  string url = 1;
+  string title = 2;
+  string author = 3;
+  int32 numChapters = 4;
+}
+
+message FetchChapterRequest {
+  string storyUrl = 1;
+  int32 chapterIndex = 2;
+}
+
+message FetchChapterResponse {
+  string url = 1;
+  string title = 2;
+  string html = 3;
+  string text = 4;
+}
