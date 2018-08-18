@@ -1,7 +1,6 @@
 package archiveofourown
 
 import (
-	"encoding/json"
 	"errors"
 	"fmt"
 	"net/url"
@@ -12,26 +11,19 @@ import (
 	"github.com/gocolly/colly"
 
 	"github.com/arkhaix/lit-reader/common"
+	"github.com/arkhaix/lit-reader/pkg/scraper/wrapper"
 )
 
 // Scraper implements common.Scraper
 type Scraper struct {
-	storyCache common.Cache
+	wrapper *wrapper.ScraperWrapper
 }
 
 // NewScraper returns an initialized Scraper
-func NewScraper(storyCache common.Cache) Scraper {
+func NewScraper(wrapper *wrapper.ScraperWrapper) Scraper {
 	return Scraper{
-		storyCache: storyCache,
+		wrapper: wrapper,
 	}
-}
-
-//cachedStory is Story, but with an index of chapter URLs instead of full Chapters
-type cachedStory struct {
-	url         string
-	title       string
-	author      string
-	chapterURLs []string
 }
 
 var baseURL *url.URL
@@ -67,16 +59,11 @@ func (Scraper) CheckStoryURL(path string) bool {
 
 // FetchStoryMetadata fetches the title, author, and chapter index of a story
 func (scraper Scraper) FetchStoryMetadata(path string) (common.Story, error) {
-	story := common.Story{}
+	return scraper.wrapper.FetchStoryMetadata(path, scraper.fetchStoryMetadata)
+}
 
-	// Check cache
-	storyString, ok := scraper.storyCache.Get(path)
-	if ok {
-		err := json.Unmarshal([]byte(storyString), story)
-		if err == nil {
-			return story, nil
-		}
-	}
+func (scraper Scraper) fetchStoryMetadata(path string) (common.Story, error) {
+	story := common.Story{}
 
 	// validate
 	path, err := forceBaseURL(path)

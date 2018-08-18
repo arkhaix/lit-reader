@@ -9,8 +9,8 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/arkhaix/lit-reader/internal/cache/local/lru"
 	. "github.com/arkhaix/lit-reader/pkg/scraper/sites/royalroad"
+	"github.com/arkhaix/lit-reader/pkg/scraper/wrapper"
 )
 
 var storyURL string
@@ -20,8 +20,7 @@ func init() {
 }
 
 func TestRoyalRoadIntegration(t *testing.T) {
-	cache, _ := lru.NewCache(500)
-	s := NewScraper(cache)
+	s := NewScraper(wrapper.NewScraperWrapper())
 
 	story, err := s.FetchStoryMetadata(storyURL)
 	if err != nil {
@@ -55,8 +54,7 @@ func TestRoyalRoadIntegration(t *testing.T) {
 }
 
 func TestFetchStoryWithWrongDomainRewrites(t *testing.T) {
-	c, _ := lru.NewCache(500)
-	s := NewScraper(c)
+	s := NewScraper(wrapper.NewScraperWrapper())
 
 	story, err := s.FetchStoryMetadata("https://www.example.com/fiction/15130/threadbare")
 	assert.Nil(t, err)
@@ -65,8 +63,7 @@ func TestFetchStoryWithWrongDomainRewrites(t *testing.T) {
 }
 
 func TestFetchChapterWithOutOfBoundsChapterIndexFails(t *testing.T) {
-	c, _ := lru.NewCache(500)
-	s := NewScraper(c)
+	s := NewScraper(wrapper.NewScraperWrapper())
 
 	_, err := s.FetchChapter("https://www.royalroad.com/fiction/5701/savage-divinity", -1)
 	assert.NotNil(t, err)

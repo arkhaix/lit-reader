@@ -4,22 +4,22 @@ import (
 	"errors"
 
 	"github.com/arkhaix/lit-reader/common"
-	"github.com/arkhaix/lit-reader/internal/cache/local/lru"
 	"github.com/arkhaix/lit-reader/pkg/scraper/sites/archiveofourown"
 	"github.com/arkhaix/lit-reader/pkg/scraper/sites/fictionpress"
 	"github.com/arkhaix/lit-reader/pkg/scraper/sites/royalroad"
 	"github.com/arkhaix/lit-reader/pkg/scraper/sites/wanderinginn"
+	"github.com/arkhaix/lit-reader/pkg/scraper/wrapper"
 )
 
 var scrapers []common.Scraper
 var storyCache common.Cache
 
 func init() {
-	storyCache, _ = lru.NewCache(500)
-	scrapers = append(scrapers, archiveofourown.NewScraper(storyCache))
-	scrapers = append(scrapers, fictionpress.NewScraper(storyCache))
-	scrapers = append(scrapers, royalroad.NewScraper(storyCache))
-	scrapers = append(scrapers, wanderinginn.NewScraper(storyCache))
+	sw := wrapper.NewScraperWrapper()
+	scrapers = append(scrapers, archiveofourown.NewScraper(sw))
+	scrapers = append(scrapers, fictionpress.NewScraper(sw))
+	scrapers = append(scrapers, royalroad.NewScraper(sw))
+	scrapers = append(scrapers, wanderinginn.NewScraper(sw))
 }
 
 // CheckStoryURL returns true if the specified URL matches the expected

@@ -9,8 +9,8 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/arkhaix/lit-reader/internal/cache/local/lru"
 	. "github.com/arkhaix/lit-reader/pkg/scraper/sites/wanderinginn"
+	"github.com/arkhaix/lit-reader/pkg/scraper/wrapper"
 )
 
 var storyURL string
@@ -20,8 +20,7 @@ func init() {
 }
 
 func TestWanderingInnIntegration(t *testing.T) {
-	cache, _ := lru.NewCache(500)
-	s := NewScraper(cache)
+	s := NewScraper(wrapper.NewScraperWrapper())
 
 	story, err := s.FetchStoryMetadata(storyURL)
 	if err != nil {
@@ -55,8 +54,7 @@ func TestWanderingInnIntegration(t *testing.T) {
 }
 
 func TestFetchStoryWithInvalidPathRewrites(t *testing.T) {
-	c, _ := lru.NewCache(500)
-	s := NewScraper(c)
+	s := NewScraper(wrapper.NewScraperWrapper())
 
 	story, err := s.FetchStoryMetadata("https://wanderinginn.com/invalid")
 	assert.Nil(t, err)
@@ -64,8 +62,7 @@ func TestFetchStoryWithInvalidPathRewrites(t *testing.T) {
 }
 
 func TestFetchChapterWithOutOfBoundsChapterIndexFails(t *testing.T) {
-	c, _ := lru.NewCache(500)
-	s := NewScraper(c)
+	s := NewScraper(wrapper.NewScraperWrapper())
 
 	_, err := s.FetchChapter(storyURL, -1)
 	assert.NotNil(t, err)
