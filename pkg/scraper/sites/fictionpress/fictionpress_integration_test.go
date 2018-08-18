@@ -9,8 +9,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	lit "github.com/arkhaix/lit-reader/common"
-	. "github.com/arkhaix/lit-reader/scraper/sites/fictionpress"
+	. "github.com/arkhaix/lit-reader/pkg/scraper/sites/fictionpress"
 )
 
 var storyURL string
@@ -62,13 +61,9 @@ func TestFetchStoryWithWrongDomainRewrites(t *testing.T) {
 }
 
 func TestFetchChapterWithOutOfBoundsChapterIndexFails(t *testing.T) {
-	story := lit.Story{
-		Chapters: []lit.Chapter{lit.Chapter{}},
-	}
-
-	err := s.FetchChapter("https://www.fictionpress.com/s/2922431/1/A-Lucky-Apocalypse", -1)
+	_, err := s.FetchChapter("https://www.fictionpress.com/s/2922431/1/A-Lucky-Apocalypse", -1)
 	assert.NotNil(t, err)
 
-	err = s.FetchChapter("https://www.fictionpress.com/s/2922431/1/A-Lucky-Apocalypse", 99999999)
+	_, err = s.FetchChapter("https://www.fictionpress.com/s/2922431/1/A-Lucky-Apocalypse", 99999999)
 	assert.NotNil(t, err)
 }

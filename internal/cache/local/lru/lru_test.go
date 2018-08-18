@@ -6,8 +6,8 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/arkhaix/lit-reader/common/cache"
-	. "github.com/arkhaix/lit-reader/common/cache/local/lru"
+	"github.com/arkhaix/lit-reader/common"
+	. "github.com/arkhaix/lit-reader/internal/cache/local/lru"
 )
 
 var ttl time.Duration
@@ -127,7 +127,7 @@ func TestPurge(t *testing.T) {
 	assert.Equal(t, "", v)
 }
 
-func makeCache(t *testing.T, size int) cache.Cache {
+func makeCache(t *testing.T, size int) common.Cache {
 	c, err := NewCache(size)
 	assert.Nil(t, err)
 	return c

@@ -10,7 +10,7 @@ import (
 	"github.com/davecgh/go-spew/spew"
 
 	"github.com/arkhaix/lit-reader/common"
-	"github.com/arkhaix/lit-reader/scraper"
+	"github.com/arkhaix/lit-reader/pkg/scraper"
 )
 
 func main() {

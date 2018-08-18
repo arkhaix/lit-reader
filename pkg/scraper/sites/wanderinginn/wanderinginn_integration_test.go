@@ -1,6 +1,6 @@
 // +build integration
 
-package archiveofourown_test
+package wanderinginn_test
 
 import (
 	"crypto/sha256"
@@ -9,16 +9,16 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	. "github.com/arkhaix/lit-reader/scraper/sites/archiveofourown"
+	. "github.com/arkhaix/lit-reader/pkg/scraper/sites/wanderinginn"
 )
 
 var storyURL string
 
 func init() {
-	storyURL = "https://archiveofourown.org/works/11478249/chapters/25740126"
+	storyURL = "https://wanderinginn.com"
 }
 
-func TestArchiveOfOurOwnIntegration(t *testing.T) {
+func TestWanderingInnIntegration(t *testing.T) {
 	s := NewScraper()
 	story, err := s.FetchStoryMetadata(storyURL)
 	if err != nil {
@@ -26,9 +26,9 @@ func TestArchiveOfOurOwnIntegration(t *testing.T) {
 	}
 
 	expectedURL := storyURL
-	expectedTitle := "Worth the Candle"
-	expectedAuthor := "cthulhuraejepsen"
-	expectedChapters := 118
+	expectedTitle := "The Wandering Inn"
+	expectedAuthor := "pirateaba"
+	expectedChapters := 249
 
 	// Validate the story metadata
 	assert.Equal(t, expectedURL, story.URL, "URL must match")
@@ -40,10 +40,10 @@ func TestArchiveOfOurOwnIntegration(t *testing.T) {
 	c, err := s.FetchChapter(storyURL, 0)
 	assert.Nil(t, err)
 
-	expectedChapterURL := "https://archiveofourown.org/works/11478249/chapters/25740126"
-	expectedChapterTitle := "Taking the Fall"
-	expectedTextSum := "29af0585a00bfbf187a1ac142b7f0648ff217daafc56766c4cdccfaa41a560ba"
-	expectedHTMLSum := "16109d786c5210586ccd1315fa25bb3f4a0edc219df2d472642e7783c5de1944"
+	expectedChapterURL := "https://wanderinginn.com/2016/07/27/1-00/"
+	expectedChapterTitle := "1.00"
+	expectedTextSum := "1c41ad2677a045895b7c58336662fa745d0469f5832167154a08f360ab13b3d5"
+	expectedHTMLSum := "29543cfb7c01ea294688bca8aeb60afe0badf591aa202d0d51b17876e7ac98cf"
 	textSum := sha256.Sum256([]byte(c.Text))
 	textSumStr := fmt.Sprintf("%x", textSum)
 	htmlSum := sha256.Sum256([]byte(c.HTML))
@@ -55,22 +55,16 @@ func TestArchiveOfOurOwnIntegration(t *testing.T) {
 	assert.Equal(t, expectedHTMLSum, htmlSumStr, "Chapter HTML must match")
 }
 
-func TestFetchStoryWithWrongDomainRewrites(t *testing.T) {
-	s := NewScraper()
-	story, err := s.FetchStoryMetadata("https://example.com/works/11478249/chapters/25740126")
+func TestFetchStoryWithInvalidPathRewrites(t *testing.T) {
+	story, err := s.FetchStoryMetadata("https://wanderinginn.com/invalid")
 	assert.Nil(t, err)
-	assert.Equal(t, "https://archiveofourown.org/works/11478249/chapters/25740126", story.URL,
-		"Incorrect domain must be rewritten")
+	assert.Equal(t, "https://wanderinginn.com", story.URL)
 }
 
 func TestFetchChapterWithOutOfBoundsChapterIndexFails(t *testing.T) {
-	story := lit.Story{
-		Chapters: []lit.Chapter{lit.Chapter{}},
-	}
-
-	err := s.FetchChapter("https://archiveofourown.org/works/11478249/chapters/25740126", -1)
+	_, err := s.FetchChapter(storyURL, -1)
 	assert.NotNil(t, err)
 
-	err = s.FetchChapter("https://archiveofourown.org/works/11478249/chapters/25740126", 99999999)
+	_, err = s.FetchChapter(storyURL, 99999999)
 	assert.NotNil(t, err)
 }

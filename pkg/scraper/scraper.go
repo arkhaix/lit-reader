@@ -4,10 +4,10 @@ import (
 	"errors"
 
 	"github.com/arkhaix/lit-reader/common"
-	"github.com/arkhaix/lit-reader/scraper/sites/archiveofourown"
-	"github.com/arkhaix/lit-reader/scraper/sites/fictionpress"
-	"github.com/arkhaix/lit-reader/scraper/sites/royalroad"
-	"github.com/arkhaix/lit-reader/scraper/sites/wanderinginn"
+	"github.com/arkhaix/lit-reader/pkg/scraper/sites/archiveofourown"
+	"github.com/arkhaix/lit-reader/pkg/scraper/sites/fictionpress"
+	"github.com/arkhaix/lit-reader/pkg/scraper/sites/royalroad"
+	"github.com/arkhaix/lit-reader/pkg/scraper/sites/wanderinginn"
 )
 
 var scrapers []common.Scraper

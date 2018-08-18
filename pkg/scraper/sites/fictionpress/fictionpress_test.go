@@ -5,7 +5,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	. "github.com/arkhaix/lit-reader/scraper/sites/fictionpress"
+	. "github.com/arkhaix/lit-reader/pkg/scraper/sites/fictionpress"
 )
 
 var s Scraper

@@ -6,7 +6,7 @@ import (
 
 	hashilru "github.com/hashicorp/golang-lru"
 
-	common "github.com/arkhaix/lit-reader/common/cache"
+	"github.com/arkhaix/lit-reader/common"
 )
 
 // cache implements cache.Cache

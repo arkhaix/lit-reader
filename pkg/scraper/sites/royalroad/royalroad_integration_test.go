@@ -9,8 +9,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	lit "github.com/arkhaix/lit-reader/common"
-	. "github.com/arkhaix/lit-reader/scraper/sites/royalroad"
+	. "github.com/arkhaix/lit-reader/pkg/scraper/sites/royalroad"
 )
 
 var storyURL string
@@ -38,7 +37,7 @@ func TestRoyalRoadIntegration(t *testing.T) {
 	assert.Equal(t, expectedChapters, len(story.Chapters), "Number of chapters must match")
 
 	// Validate the data for a chapter
-	c, err := s.FetchChapter(&story, 0)
+	c, err := s.FetchChapter(storyURL, 0)
 	assert.Nil(t, err)
 
 	expectedChapterURL := "https://www.royalroad.com/fiction/15130/threadbare/chapter/175199/awakening-1"
@@ -65,13 +64,9 @@ func TestFetchStoryWithWrongDomainRewrites(t *testing.T) {
 }
 
 func TestFetchChapterWithOutOfBoundsChapterIndexFails(t *testing.T) {
-	story := lit.Story{
-		Chapters: []lit.Chapter{lit.Chapter{}},
-	}
-
 	_, err := s.FetchChapter("https://www.royalroad.com/fiction/5701/savage-divinity", -1)
 	assert.NotNil(t, err)
 
-	_, err = s.FetchChapter("https://www.royalroad.com/fiction/5701/savage-divinity", 1)
+	_, err = s.FetchChapter("https://www.royalroad.com/fiction/5701/savage-divinity", 99999999)
 	assert.NotNil(t, err)
 }

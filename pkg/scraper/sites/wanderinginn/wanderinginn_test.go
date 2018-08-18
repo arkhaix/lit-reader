@@ -5,7 +5,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	. "github.com/arkhaix/lit-reader/scraper/sites/wanderinginn"
+	. "github.com/arkhaix/lit-reader/pkg/scraper/sites/wanderinginn"
 )
 
 var s Scraper

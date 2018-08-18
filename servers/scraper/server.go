@@ -4,7 +4,7 @@ import (
 	context "golang.org/x/net/context"
 
 	api "github.com/arkhaix/lit-reader/api/scraper"
-	"github.com/arkhaix/lit-reader/scraper"
+	"github.com/arkhaix/lit-reader/pkg/scraper"
 )
 
 // Server implements api.ScraperServer
