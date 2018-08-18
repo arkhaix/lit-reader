@@ -6,11 +6,11 @@ import (
 	"sync/atomic"
 	"time"
 
-	epub "github.com/bmaupin/go-epub"
+	"github.com/bmaupin/go-epub"
 	"github.com/davecgh/go-spew/spew"
 
-	lit "github.com/arkhaix/lit-reader/common"
-	"github.com/arkhaix/lit-reader/scraper"
+	"github.com/arkhaix/lit-reader/common"
+	"github.com/arkhaix/lit-reader/pkg/scraper"
 )
 
 func main() {
@@ -25,7 +25,7 @@ func main() {
 	flag.Parse()
 
 	// Validate
-	if !scraper.IsSupportedStoryURL(*url) {
+	if !scraper.CheckStoryURL(*url) {
 		fmt.Println("Unsupported story URL")
 		return
 	}
@@ -70,11 +70,12 @@ func main() {
 		var fetchChapter func(int)
 		fetchChapter = func(chapterIndex int) {
 			// Fetch the chapter
-			err = scraper.FetchChapter(&story, chapterIndex)
+			chapter, err := scraper.FetchChapter(story.URL, chapterIndex)
+			story.Chapters[chapterIndex] = chapter
 
 			// Handle errors
 			if err != nil {
-				if scraperError, ok := err.(lit.ScraperError); ok {
+				if scraperError, ok := err.(common.ScraperError); ok {
 					if scraperError.CanRetry() {
 						fetchChapter(chapterIndex)
 					} else /* not retryable */ {

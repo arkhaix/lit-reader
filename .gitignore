@@ -10,3 +10,13 @@
 
 # Output of the go coverage tool, specifically when used with LiteIDE
 *.out
+
+# Binaries from cmd/
+scrape
+scraperserver
+
+# Artifacts from local testing
+*.epub
+
+# IDE settings
+.vscode

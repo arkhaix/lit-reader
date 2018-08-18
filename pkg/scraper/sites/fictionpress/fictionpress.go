@@ -10,16 +10,20 @@ import (
 
 	"github.com/gocolly/colly"
 
-	lit "github.com/arkhaix/lit-reader/common"
+	"github.com/arkhaix/lit-reader/common"
+	"github.com/arkhaix/lit-reader/pkg/scraper/wrapper"
 )
 
 // Scraper implements common.Scraper
 type Scraper struct {
+	wrapper *wrapper.ScraperWrapper
 }
 
-// NewScraper returns an empty Scraper
-func NewScraper() Scraper {
-	return Scraper{}
+// NewScraper returns an initialized Scraper
+func NewScraper(wrapper *wrapper.ScraperWrapper) Scraper {
+	return Scraper{
+		wrapper: wrapper,
+	}
 }
 
 var baseURL *url.URL
@@ -39,9 +43,9 @@ func init() {
 	chapterSelectPattern = regexp.MustCompile("[0-9]+\\. (.*)$")
 }
 
-// IsSupportedStoryURL returns true if the specified URL matches the expected
+// CheckStoryURL returns true if the specified URL matches the expected
 // pattern of a story supported by this parser
-func (Scraper) IsSupportedStoryURL(path string) bool {
+func (Scraper) CheckStoryURL(path string) bool {
 	if !strings.Contains(path, "://") {
 		path = "https://" + path
 	}
@@ -68,26 +72,30 @@ func (Scraper) IsSupportedStoryURL(path string) bool {
 }
 
 // FetchStoryMetadata fetches the title, author, and chapter index of a story
-func (scraper Scraper) FetchStoryMetadata(path string) (lit.Story, error) {
-	story := lit.Story{}
+func (scraper Scraper) FetchStoryMetadata(path string) (common.Story, error) {
+	return scraper.wrapper.FetchStoryMetadata(path, scraper.fetchStoryMetadata)
+}
+
+func (scraper Scraper) fetchStoryMetadata(path string) (common.Story, error) {
+	story := common.Story{}
 
 	// validate
 	path, err := forceBaseURL(path)
 	if err != nil {
-		return story, lit.NewScraperError(err)
+		return story, common.NewScraperError(err)
 	}
-	if scraper.IsSupportedStoryURL(path) == false {
-		return story, lit.NewScraperErrorString("Invalid story URL: " + path)
+	if scraper.CheckStoryURL(path) == false {
+		return story, common.NewScraperErrorString("Invalid story URL: " + path)
 	}
 
 	// Parse the story and chapter parts from the path
 	pathSuffix, err := url.Parse(path)
 	if err != nil {
-		return story, lit.NewScraperErrorString("Invalid chapter URL: " + path)
+		return story, common.NewScraperErrorString("Invalid chapter URL: " + path)
 	}
 	matches := chapterPattern.FindStringSubmatch(pathSuffix.Path)
 	if matches == nil || len(matches) < 4 {
-		return story, lit.NewScraperErrorString("Invalid chapter URL: " + path)
+		return story, common.NewScraperErrorString("Invalid chapter URL: " + path)
 	}
 	storyID := matches[1]
 	// chapterID := matches[2]
@@ -134,11 +142,10 @@ func (scraper Scraper) FetchStoryMetadata(path string) (lit.Story, error) {
 			fmt.Println(err)
 		}
 		absoluteLink := baseURL.ResolveReference(linkURL)
-		story.Chapters = append(story.Chapters, lit.Chapter{
+		story.Chapters = append(story.Chapters, common.Chapter{
 			Title: chapterTitle,
 			URL:   absoluteLink.String(),
 			HTML:  "",
-			Text:  "",
 		})
 	})
 
@@ -152,23 +159,27 @@ func (scraper Scraper) FetchStoryMetadata(path string) (lit.Story, error) {
 	c.Visit(path)
 
 	if callbackError != nil {
-		return story, lit.NewScraperError(callbackError)
+		return story, common.NewScraperError(callbackError)
 	}
 	return story, nil
 }
 
 // FetchChapter fetches the text of one chapter of a story, inserting it into the Story
-func (Scraper) FetchChapter(story *lit.Story, index int) error {
+func (scraper Scraper) FetchChapter(storyURL string, index int) (common.Chapter, error) {
+	chapter := common.Chapter{}
+
+	story, err := scraper.FetchStoryMetadata(storyURL)
+
 	// validate
-	if story == nil {
-		return errors.New("Story must not be nil")
+	if err != nil {
+		return chapter, common.NewScraperError(err)
 	}
 	if index < 0 || index >= len(story.Chapters) {
-		return errors.New("Chapter index out of bounds")
+		return chapter, errors.New("Chapter index out of bounds")
 	}
 	chapterURL, err := forceBaseURL(story.Chapters[index].URL)
 	if err != nil {
-		return err
+		return chapter, err
 	}
 
 	// init
@@ -179,11 +190,11 @@ func (Scraper) FetchChapter(story *lit.Story, index int) error {
 	// parse
 	var callbackError error
 	c.OnHTML("#storytext", func(e *colly.HTMLElement) {
-		story.Chapters[index].Text = strings.TrimSpace(e.Text)
 		story.Chapters[index].HTML, err = e.DOM.Html()
 		if err != nil {
 			callbackError = err
 		}
+		chapter = story.Chapters[index]
 	})
 
 	// errors
@@ -197,9 +208,9 @@ func (Scraper) FetchChapter(story *lit.Story, index int) error {
 	c.Visit(chapterURL)
 
 	if callbackError != nil {
-		return lit.NewScraperError(callbackError)
+		return chapter, common.NewScraperError(callbackError)
 	}
-	return nil
+	return chapter, nil
 }
 
 func buildChapterURL(storyID string, storySuffix string, chapter int) string {

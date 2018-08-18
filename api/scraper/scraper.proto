@@ -43,5 +43,4 @@ message FetchChapterResponse {
   string url = 1;
   string title = 2;
   string html = 3;
-  string text = 4;
 }
