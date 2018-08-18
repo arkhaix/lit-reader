@@ -37,8 +37,9 @@ func TestWanderingInnIntegration(t *testing.T) {
 	assert.Equal(t, expectedChapters, len(story.Chapters), "Number of chapters must match")
 
 	// Validate the data for a chapter
-	s.FetchChapter(&story, 0)
-	c := story.Chapters[0]
+	c, err := s.FetchChapter(storyURL, 0)
+	assert.Nil(t, err)
+
 	expectedChapterURL := "https://wanderinginn.com/2016/07/27/1-00/"
 	expectedChapterTitle := "1.00"
 	expectedTextSum := "1c41ad2677a045895b7c58336662fa745d0469f5832167154a08f360ab13b3d5"
@@ -58,4 +59,12 @@ func TestFetchStoryWithInvalidPathRewrites(t *testing.T) {
 	story, err := s.FetchStoryMetadata("https://wanderinginn.com/invalid")
 	assert.Nil(t, err)
 	assert.Equal(t, "https://wanderinginn.com", story.URL)
+}
+
+func TestFetchChapterWithOutOfBoundsChapterIndexFails(t *testing.T) {
+	err := s.FetchChapter(storyURL, -1)
+	assert.NotNil(t, err)
+
+	err = s.FetchChapter(storyURL, 99999999)
+	assert.NotNil(t, err)
 }

@@ -5,7 +5,6 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	lit "github.com/arkhaix/lit-reader/common"
 	. "github.com/arkhaix/lit-reader/scraper/sites/archiveofourown"
 )
 
@@ -117,33 +116,15 @@ func TestFetchStoryWithInvalidPathFails(t *testing.T) {
 
 // FetchChapter failure tests
 
-func TestFetchChapterWithNilStoryFails(t *testing.T) {
-	err := s.FetchChapter(nil, 0)
-	assert.NotNil(t, err)
-}
-
-func TestFetchChapterWithOutOfBoundsChapterIndexFails(t *testing.T) {
-	story := lit.Story{
-		Chapters: []lit.Chapter{lit.Chapter{}},
-	}
-
-	err := s.FetchChapter(&story, -1)
-	assert.NotNil(t, err)
-
-	err = s.FetchChapter(&story, 1)
+func TestFetchChapterWithEmptyStoryFails(t *testing.T) {
+	_, err := s.FetchChapter("", 0)
 	assert.NotNil(t, err)
 }
 
 func TestFetchChapterWithUnparseableChapterURLFails(t *testing.T) {
-	story := lit.Story{
-		Chapters: []lit.Chapter{lit.Chapter{URL: "ht&tps://archiveofourown.org/works/11478249/chapters/25740126"}},
-	}
-	err := s.FetchChapter(&story, 0)
+	_, err := s.FetchChapter("ht&tps://archiveofourown.org/works/11478249/chapters/25740126", 0)
 	assert.NotNil(t, err)
 
-	story = lit.Story{
-		Chapters: []lit.Chapter{lit.Chapter{URL: "https://archiveofourown.org/%^&works/11478249/chapters/25740126"}},
-	}
-	err = s.FetchChapter(&story, 0)
+	_, err = s.FetchChapter("https://archiveofourown.org/%^&works/11478249/chapters/25740126", 0)
 	assert.NotNil(t, err)
 }

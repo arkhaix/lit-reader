@@ -4,7 +4,6 @@ import (
 	context "golang.org/x/net/context"
 
 	api "github.com/arkhaix/lit-reader/api/scraper"
-	"github.com/arkhaix/lit-reader/common"
 	"github.com/arkhaix/lit-reader/scraper"
 )
 
@@ -34,18 +33,10 @@ func (s *Server) FetchStoryMetadata(ctx context.Context, in *api.FetchStoryMetad
 
 // FetchChapter fetches one chapter of a story
 func (s *Server) FetchChapter(ctx context.Context, in *api.FetchChapterRequest) (*api.FetchChapterResponse, error) {
+	storyURL := in.GetStoryUrl()
 	chapterIndex := int(in.GetChapterIndex())
-	story, err := scraper.FetchStoryMetadata(in.GetStoryUrl())
-	if err != nil {
-		return nil, err
-	}
 
-	err = scraper.FetchChapter(&story, chapterIndex)
-
-	chapter := &common.Chapter{}
-	if chapterIndex >= 0 && chapterIndex < len(story.Chapters) {
-		chapter = &story.Chapters[chapterIndex]
-	}
+	chapter, err := scraper.FetchChapter(storyURL, chapterIndex)
 
 	return &api.FetchChapterResponse{
 		Url:   chapter.URL,

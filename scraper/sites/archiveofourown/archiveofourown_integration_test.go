@@ -37,8 +37,9 @@ func TestArchiveOfOurOwnIntegration(t *testing.T) {
 	assert.Equal(t, expectedChapters, len(story.Chapters), "Number of chapters must match")
 
 	// Validate the data for a chapter
-	s.FetchChapter(&story, 0)
-	c := story.Chapters[0]
+	c, err := s.FetchChapter(storyURL, 0)
+	assert.Nil(t, err)
+
 	expectedChapterURL := "https://archiveofourown.org/works/11478249/chapters/25740126"
 	expectedChapterTitle := "Taking the Fall"
 	expectedTextSum := "29af0585a00bfbf187a1ac142b7f0648ff217daafc56766c4cdccfaa41a560ba"
@@ -60,4 +61,16 @@ func TestFetchStoryWithWrongDomainRewrites(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, "https://archiveofourown.org/works/11478249/chapters/25740126", story.URL,
 		"Incorrect domain must be rewritten")
+}
+
+func TestFetchChapterWithOutOfBoundsChapterIndexFails(t *testing.T) {
+	story := lit.Story{
+		Chapters: []lit.Chapter{lit.Chapter{}},
+	}
+
+	err := s.FetchChapter("https://archiveofourown.org/works/11478249/chapters/25740126", -1)
+	assert.NotNil(t, err)
+
+	err = s.FetchChapter("https://archiveofourown.org/works/11478249/chapters/25740126", 99999999)
+	assert.NotNil(t, err)
 }

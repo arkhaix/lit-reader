@@ -9,6 +9,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
+	lit "github.com/arkhaix/lit-reader/common"
 	. "github.com/arkhaix/lit-reader/scraper/sites/fictionpress"
 )
 
@@ -35,8 +36,9 @@ func TestFictionPressIntegration(t *testing.T) {
 	assert.Equal(t, expectedChapters, len(story.Chapters), "Number of chapters must match")
 
 	// Validate the data for a chapter
-	s.FetchChapter(&story, 0)
-	c := story.Chapters[0]
+	c, err := s.FetchChapter(storyURL, 0)
+	assert.Nil(t, err)
+
 	expectedChapterURL := "https://www.fictionpress.com/s/2922431/1/A-Lucky-Apocalypse"
 	expectedChapterTitle := "Chapter 1"
 	expectedTextSum := "9c8fa415b39ae1a863c0a82161360d89d7595ff900e608ac661aa74928d803bb"
@@ -57,4 +59,16 @@ func TestFetchStoryWithWrongDomainRewrites(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, "https://www.fictionpress.com/s/2922431/1/A-Lucky-Apocalypse", story.URL,
 		"Incorrect domain must be rewritten")
+}
+
+func TestFetchChapterWithOutOfBoundsChapterIndexFails(t *testing.T) {
+	story := lit.Story{
+		Chapters: []lit.Chapter{lit.Chapter{}},
+	}
+
+	err := s.FetchChapter("https://www.fictionpress.com/s/2922431/1/A-Lucky-Apocalypse", -1)
+	assert.NotNil(t, err)
+
+	err = s.FetchChapter("https://www.fictionpress.com/s/2922431/1/A-Lucky-Apocalypse", 99999999)
+	assert.NotNil(t, err)
 }

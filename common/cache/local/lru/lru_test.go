@@ -103,7 +103,7 @@ func TestDelete(t *testing.T) {
 }
 
 func TestPurge(t *testing.T) {
-	c := makeCache(t, 1)
+	c := makeCache(t, 2)
 
 	c.Put(a, a, ttl)
 	c.Put(b, b, ttl)

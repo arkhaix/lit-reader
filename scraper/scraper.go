@@ -3,14 +3,14 @@ package scraper
 import (
 	"errors"
 
-	lit "github.com/arkhaix/lit-reader/common"
+	"github.com/arkhaix/lit-reader/common"
 	"github.com/arkhaix/lit-reader/scraper/sites/archiveofourown"
 	"github.com/arkhaix/lit-reader/scraper/sites/fictionpress"
 	"github.com/arkhaix/lit-reader/scraper/sites/royalroad"
 	"github.com/arkhaix/lit-reader/scraper/sites/wanderinginn"
 )
 
-var scrapers []lit.Scraper
+var scrapers []common.Scraper
 
 func init() {
 	scrapers = append(scrapers, archiveofourown.NewScraper())
@@ -30,29 +30,25 @@ func CheckStoryURL(url string) bool {
 
 // FetchStoryMetadata fetches the title, author, and chapter index of a story,
 // but not the actual chapter text
-func FetchStoryMetadata(url string) (lit.Story, error) {
+func FetchStoryMetadata(url string) (common.Story, error) {
 	scraper := getScraper(url)
 	if scraper == nil {
-		return lit.Story{}, errors.New("Unsupported URL")
+		return common.Story{}, errors.New("Unsupported URL")
 	}
 	return scraper.FetchStoryMetadata(url)
 }
 
 // FetchChapter fetches one chapter of a story
-func FetchChapter(story *lit.Story, index int) error {
-	if story == nil {
-		return errors.New("story must not be nil")
-	}
-
-	scraper := getScraper(story.URL)
+func FetchChapter(storyURL string, index int) (common.Chapter, error) {
+	scraper := getScraper(storyURL)
 	if scraper == nil {
-		return errors.New("Unsupported URL")
+		return common.Chapter{}, errors.New("Unsupported URL")
 	}
 
-	return scraper.FetchChapter(story, index)
+	return scraper.FetchChapter(storyURL, index)
 }
 
-func getScraper(url string) lit.Scraper {
+func getScraper(url string) common.Scraper {
 	for _, scraper := range scrapers {
 		if scraper.CheckStoryURL(url) == true {
 			return scraper

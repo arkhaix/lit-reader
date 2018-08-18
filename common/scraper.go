@@ -27,5 +27,5 @@ type Scraper interface {
 	FetchStoryMetadata(path string) (Story, error)
 
 	// FetchChapter fetches one chapter of a story
-	FetchChapter(story *Story, index int) error
+	FetchChapter(storyURL string, index int) (Chapter, error)
 }

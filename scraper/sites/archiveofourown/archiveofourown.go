@@ -137,17 +137,21 @@ func (scraper Scraper) FetchStoryMetadata(path string) (common.Story, error) {
 }
 
 // FetchChapter fetches the text of one chapter of a story, inserting it into the Story
-func (Scraper) FetchChapter(story *common.Story, index int) error {
+func (scraper Scraper) FetchChapter(storyURL string, index int) (common.Chapter, error) {
+	chapter := common.Chapter{}
+
+	story, err := scraper.FetchStoryMetadata(storyURL)
+
 	// validate
-	if story == nil {
-		return common.NewScraperErrorString("Story must not be nil")
+	if err != nil {
+		return chapter, common.NewScraperError(err)
 	}
 	if index < 0 || index >= len(story.Chapters) {
-		return common.NewScraperErrorString("Chapter index out of bounds")
+		return chapter, common.NewScraperErrorString("Chapter index out of bounds")
 	}
 	chapterURL, err := forceBaseURL(story.Chapters[index].URL)
 	if err != nil {
-		return err
+		return chapter, err
 	}
 
 	// init
@@ -176,6 +180,8 @@ func (Scraper) FetchChapter(story *common.Story, index int) error {
 			story.Chapters[index].Title + "\n" + story.Chapters[index].Text
 		story.Chapters[index].HTML =
 			"<p><h1>" + story.Chapters[index].Title + "</h1></p>" + story.Chapters[index].HTML
+
+		chapter = story.Chapters[index]
 	})
 
 	// errors
@@ -189,9 +195,9 @@ func (Scraper) FetchChapter(story *common.Story, index int) error {
 	c.Visit(chapterURL)
 
 	if callbackError != nil {
-		return common.NewScraperError(callbackError)
+		return chapter, common.NewScraperError(callbackError)
 	}
-	return nil
+	return chapter, nil
 }
 
 func buildChapterURL(storyID string, chapterID int) string {

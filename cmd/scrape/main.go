@@ -70,7 +70,8 @@ func main() {
 		var fetchChapter func(int)
 		fetchChapter = func(chapterIndex int) {
 			// Fetch the chapter
-			err = scraper.FetchChapter(&story, chapterIndex)
+			chapter, err := scraper.FetchChapter(story.URL, chapterIndex)
+			story.Chapters[chapterIndex] = chapter
 
 			// Handle errors
 			if err != nil {
