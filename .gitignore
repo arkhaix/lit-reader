@@ -12,7 +12,7 @@
 *.out
 
 # Binaries from cmd/
-scraper
+scrape
 scraperserver
 
 # Artifacts from local testing

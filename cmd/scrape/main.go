@@ -6,10 +6,10 @@ import (
 	"sync/atomic"
 	"time"
 
-	epub "github.com/bmaupin/go-epub"
+	"github.com/bmaupin/go-epub"
 	"github.com/davecgh/go-spew/spew"
 
-	lit "github.com/arkhaix/lit-reader/common"
+	"github.com/arkhaix/lit-reader/common"
 	"github.com/arkhaix/lit-reader/scraper"
 )
 
@@ -75,7 +75,7 @@ func main() {
 
 			// Handle errors
 			if err != nil {
-				if scraperError, ok := err.(lit.ScraperError); ok {
+				if scraperError, ok := err.(common.ScraperError); ok {
 					if scraperError.CanRetry() {
 						fetchChapter(chapterIndex)
 					} else /* not retryable */ {
