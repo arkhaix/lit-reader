@@ -5,13 +5,15 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
+	"github.com/arkhaix/lit-reader/internal/cache/local/lru"
 	. "github.com/arkhaix/lit-reader/pkg/scraper/sites/royalroad"
 )
 
 var s Scraper
 
 func init() {
-	s = NewScraper()
+	c, _ := lru.NewCache(500)
+	s = NewScraper(c)
 }
 
 func TestURLWithValidStoryURLSucceeds(t *testing.T) {

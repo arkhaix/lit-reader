@@ -9,6 +9,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
+	"github.com/arkhaix/lit-reader/internal/cache/local/lru"
 	. "github.com/arkhaix/lit-reader/pkg/scraper/sites/fictionpress"
 )
 
@@ -19,7 +20,9 @@ func init() {
 }
 
 func TestFictionPressIntegration(t *testing.T) {
-	s := NewScraper()
+	cache, _ := lru.NewCache(500)
+	s := NewScraper(cache)
+
 	story, err := s.FetchStoryMetadata(storyURL)
 	assert.Nil(t, err, "Failed to fetch the story")
 
@@ -50,6 +53,9 @@ func TestFictionPressIntegration(t *testing.T) {
 }
 
 func TestFetchStoryWithWrongDomainRewrites(t *testing.T) {
+	c, _ := lru.NewCache(500)
+	s := NewScraper(c)
+
 	story, err := s.FetchStoryMetadata("https://www.example.com/s/2922431/1/A-Lucky-Apocalypse")
 	assert.Nil(t, err)
 	assert.Equal(t, "https://www.fictionpress.com/s/2922431/1/A-Lucky-Apocalypse", story.URL,
@@ -57,6 +63,9 @@ func TestFetchStoryWithWrongDomainRewrites(t *testing.T) {
 }
 
 func TestFetchChapterWithOutOfBoundsChapterIndexFails(t *testing.T) {
+	c, _ := lru.NewCache(500)
+	s := NewScraper(c)
+
 	_, err := s.FetchChapter("https://www.fictionpress.com/s/2922431/1/A-Lucky-Apocalypse", -1)
 	assert.NotNil(t, err)
 

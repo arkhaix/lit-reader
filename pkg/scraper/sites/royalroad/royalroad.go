@@ -1,6 +1,7 @@
 package royalroad
 
 import (
+	"encoding/json"
 	"net/url"
 	"regexp"
 	"strings"
@@ -12,11 +13,22 @@ import (
 
 // Scraper implements common.Scraper
 type Scraper struct {
+	storyCache common.Cache
 }
 
-// NewScraper returns an empty Scraper
-func NewScraper() Scraper {
-	return Scraper{}
+// NewScraper returns an initialized Scraper
+func NewScraper(storyCache common.Cache) Scraper {
+	return Scraper{
+		storyCache: storyCache,
+	}
+}
+
+//cachedStory is Story, but with an index of chapter URLs instead of full Chapters
+type cachedStory struct {
+	url         string
+	title       string
+	author      string
+	chapterURLs []string
 }
 
 var baseURL *url.URL
@@ -50,6 +62,15 @@ func (Scraper) CheckStoryURL(path string) bool {
 // FetchStoryMetadata fetches the title, author, and chapter index of a story
 func (scraper Scraper) FetchStoryMetadata(path string) (common.Story, error) {
 	story := common.Story{}
+
+	// Check cache
+	storyString, ok := scraper.storyCache.Get(path)
+	if ok {
+		err := json.Unmarshal([]byte(storyString), story)
+		if err == nil {
+			return story, nil
+		}
+	}
 
 	// validate
 	path, err := forceBaseURL(path)

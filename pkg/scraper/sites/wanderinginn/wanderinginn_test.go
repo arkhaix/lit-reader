@@ -5,13 +5,15 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
+	"github.com/arkhaix/lit-reader/internal/cache/local/lru"
 	. "github.com/arkhaix/lit-reader/pkg/scraper/sites/wanderinginn"
 )
 
 var s Scraper
 
 func init() {
-	s = NewScraper()
+	c, _ := lru.NewCache(500)
+	s = NewScraper(c)
 }
 
 func TestURLWithValidStoryURLSucceeds(t *testing.T) {
@@ -71,7 +73,6 @@ func TestFetchStoryWithUnparseableURLFails(t *testing.T) {
 func TestFetchStoryWithWrongDomainFails(t *testing.T) {
 	// For this scraper, the domain is the story link, so wrong domains are
 	// invalid and should not be rewritten
-	s := NewScraper()
 	_, err := s.FetchStoryMetadata("https://example.com")
 	assert.NotNil(t, err)
 }
