@@ -17,3 +17,6 @@ scraperserver
 
 # Artifacts from local testing
 *.epub
+
+# IDE settings
+.vscode
