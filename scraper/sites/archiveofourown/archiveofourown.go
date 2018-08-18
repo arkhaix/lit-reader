@@ -33,9 +33,9 @@ func init() {
 	chapterSelectPattern = regexp.MustCompile("[0-9]+\\. (.*)$")
 }
 
-// IsSupportedStoryURL returns true if the specified URL matches the expected
+// CheckStoryURL returns true if the specified URL matches the expected
 // pattern of a story supported by this parser
-func (Scraper) IsSupportedStoryURL(path string) bool {
+func (Scraper) CheckStoryURL(path string) bool {
 	if !strings.Contains(path, "://") {
 		path = "https://" + path
 	}
@@ -62,7 +62,7 @@ func (scraper Scraper) FetchStoryMetadata(path string) (common.Story, error) {
 	if err != nil {
 		return story, common.NewScraperErrorString("Invalid story URL: " + path)
 	}
-	if scraper.IsSupportedStoryURL(path) == false {
+	if scraper.CheckStoryURL(path) == false {
 		return story, common.NewScraperErrorString("Invalid story URL: " + path)
 	}
 

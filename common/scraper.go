@@ -18,9 +18,9 @@ type Chapter struct {
 
 // Scraper is the interface implemented by each site scraper for fetching stories
 type Scraper interface {
-	// IsSupportedStoryURL returns true if the specified URL matches the expected
+	// CheckStoryURL returns true if the specified URL matches the expected
 	// pattern of a story supported by this parser
-	IsSupportedStoryURL(path string) bool
+	CheckStoryURL(path string) bool
 
 	// FetchStoryMetadata fetches the title, author, and chapter index of a story,
 	// but not the actual chapter text

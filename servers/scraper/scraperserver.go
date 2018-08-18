@@ -14,7 +14,7 @@ type Server struct{}
 // CheckStoryURL returns true if the specified URL matches the expected
 // pattern of a story supported by this service
 func (s *Server) CheckStoryURL(ctx context.Context, in *api.CheckStoryURLRequest) (*api.CheckStoryURLResponse, error) {
-	allowed := scraper.IsSupportedStoryURL(in.GetUrl())
+	allowed := scraper.CheckStoryURL(in.GetUrl())
 
 	return &api.CheckStoryURLResponse{Allowed: allowed}, nil
 }

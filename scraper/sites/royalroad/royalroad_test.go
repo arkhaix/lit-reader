@@ -16,71 +16,71 @@ func init() {
 }
 
 func TestURLWithValidStoryURLSucceeds(t *testing.T) {
-	assert.Equal(t, true, s.IsSupportedStoryURL("https://www.royalroad.com/fiction/5701/savage-divinity"))
+	assert.Equal(t, true, s.CheckStoryURL("https://www.royalroad.com/fiction/5701/savage-divinity"))
 }
 
 func TestURLWithHTTPProtocolSucceeds(t *testing.T) {
 	// This should succeed because the protocol is ignored and forced to https
-	assert.Equal(t, true, s.IsSupportedStoryURL("http://www.royalroad.com/fiction/5701/savage-divinity"))
+	assert.Equal(t, true, s.CheckStoryURL("http://www.royalroad.com/fiction/5701/savage-divinity"))
 }
 
 func TestURLWithEmptyProtocolSucceeds(t *testing.T) {
 	// This should succeed because the protocol is ignored and forced to https
-	assert.Equal(t, true, s.IsSupportedStoryURL("www.royalroad.com/fiction/5701/savage-divinity"))
+	assert.Equal(t, true, s.CheckStoryURL("www.royalroad.com/fiction/5701/savage-divinity"))
 }
 
 func TestURLWithInvalidProtocolSucceeds(t *testing.T) {
 	// This should succeed because the protocol is ignored and forced to https
-	assert.Equal(t, true, s.IsSupportedStoryURL("ftp://www.royalroad.com/fiction/5701/savage-divinity"))
+	assert.Equal(t, true, s.CheckStoryURL("ftp://www.royalroad.com/fiction/5701/savage-divinity"))
 }
 
 func TestUnparseableURLFails(t *testing.T) {
-	assert.Equal(t, false, s.IsSupportedStoryURL("ht&tps://www.royalroad.com/fiction/5701/savage-divinity"))
-	assert.Equal(t, false, s.IsSupportedStoryURL("https://www.royalroad.com/%^&fiction/5701/savage-divinity"))
+	assert.Equal(t, false, s.CheckStoryURL("ht&tps://www.royalroad.com/fiction/5701/savage-divinity"))
+	assert.Equal(t, false, s.CheckStoryURL("https://www.royalroad.com/%^&fiction/5701/savage-divinity"))
 }
 
 func TestURLWithEmptySubdomainFails(t *testing.T) {
-	assert.Equal(t, false, s.IsSupportedStoryURL("https://royalroad.com/fiction/5701/savage-divinity"))
+	assert.Equal(t, false, s.CheckStoryURL("https://royalroad.com/fiction/5701/savage-divinity"))
 }
 
 func TestURLWithInvalidSubdomainFails(t *testing.T) {
-	assert.Equal(t, false, s.IsSupportedStoryURL("https://invalid.royalroad.com/fiction/5701/savage-divinity"))
+	assert.Equal(t, false, s.CheckStoryURL("https://invalid.royalroad.com/fiction/5701/savage-divinity"))
 }
 
 func TestURLWithEmptyDomainFails(t *testing.T) {
-	assert.Equal(t, false, s.IsSupportedStoryURL("https://www..com/fiction/5701/savage-divinity"))
+	assert.Equal(t, false, s.CheckStoryURL("https://www..com/fiction/5701/savage-divinity"))
 }
 
 func TestURLWithInvalidDomainFails(t *testing.T) {
-	assert.Equal(t, false, s.IsSupportedStoryURL("https://www.example.com/fiction/5701/savage-divinity"))
+	assert.Equal(t, false, s.CheckStoryURL("https://www.example.com/fiction/5701/savage-divinity"))
 }
 
 func TestURLWithEmptyTLDFails(t *testing.T) {
-	assert.Equal(t, false, s.IsSupportedStoryURL("https://www.royalroad./fiction/5701/savage-divinity"))
+	assert.Equal(t, false, s.CheckStoryURL("https://www.royalroad./fiction/5701/savage-divinity"))
 }
 
 func TestURLWithInvalidTLDFails(t *testing.T) {
-	assert.Equal(t, false, s.IsSupportedStoryURL("https://www.royalroad.net/fiction/5701/savage-divinity"))
+	assert.Equal(t, false, s.CheckStoryURL("https://www.royalroad.net/fiction/5701/savage-divinity"))
 }
 
 func TestURLWithEmptyPrefixFails(t *testing.T) {
-	assert.Equal(t, false, s.IsSupportedStoryURL("https://www.royalroad.com//5701/savage-divinity"))
+	assert.Equal(t, false, s.CheckStoryURL("https://www.royalroad.com//5701/savage-divinity"))
 }
 
 func TestURLWithInvalidPrefixFails(t *testing.T) {
-	assert.Equal(t, false, s.IsSupportedStoryURL("https://www.royalroad.com/invalid/5701/savage-divinity"))
+	assert.Equal(t, false, s.CheckStoryURL("https://www.royalroad.com/invalid/5701/savage-divinity"))
 }
 
 func TestURLWithEmptyStoryIDFails(t *testing.T) {
-	assert.Equal(t, false, s.IsSupportedStoryURL("https://www.royalroad.com/fiction//savage-divinity"))
+	assert.Equal(t, false, s.CheckStoryURL("https://www.royalroad.com/fiction//savage-divinity"))
 }
 
 func TestURLWithAlphaStoryIDFails(t *testing.T) {
-	assert.Equal(t, false, s.IsSupportedStoryURL("https://www.royalroad.com/fiction/A5701/savage-divinity"))
+	assert.Equal(t, false, s.CheckStoryURL("https://www.royalroad.com/fiction/A5701/savage-divinity"))
 }
 
 func TestURLWithEmptySuffixFails(t *testing.T) {
-	assert.Equal(t, false, s.IsSupportedStoryURL("https://www.royalroad.com/fiction/5701/"))
+	assert.Equal(t, false, s.CheckStoryURL("https://www.royalroad.com/fiction/5701/"))
 }
 
 // FetchStoryMetadata failure tests

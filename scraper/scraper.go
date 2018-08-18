@@ -19,9 +19,9 @@ func init() {
 	scrapers = append(scrapers, wanderinginn.NewScraper())
 }
 
-// IsSupportedStoryURL returns true if the specified URL matches the expected
+// CheckStoryURL returns true if the specified URL matches the expected
 // pattern of a story supported by any scraper
-func IsSupportedStoryURL(url string) bool {
+func CheckStoryURL(url string) bool {
 	if getScraper(url) == nil {
 		return false
 	}
@@ -54,7 +54,7 @@ func FetchChapter(story *lit.Story, index int) error {
 
 func getScraper(url string) lit.Scraper {
 	for _, scraper := range scrapers {
-		if scraper.IsSupportedStoryURL(url) == true {
+		if scraper.CheckStoryURL(url) == true {
 			return scraper
 		}
 	}

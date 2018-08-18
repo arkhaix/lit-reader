@@ -26,9 +26,9 @@ func init() {
 	tocURL = "https://wanderinginn.com/table-of-contents/"
 }
 
-// IsSupportedStoryURL returns true if the specified URL matches the expected
+// CheckStoryURL returns true if the specified URL matches the expected
 // pattern of a story supported by this parser
-func (Scraper) IsSupportedStoryURL(path string) bool {
+func (Scraper) CheckStoryURL(path string) bool {
 	if !strings.Contains(path, "://") {
 		path = "https://" + path
 	}
@@ -50,7 +50,7 @@ func (scraper Scraper) FetchStoryMetadata(path string) (lit.Story, error) {
 	story := lit.Story{}
 
 	// validate
-	if !scraper.IsSupportedStoryURL(path) {
+	if !scraper.CheckStoryURL(path) {
 		return story, lit.NewScraperErrorString("Invalid story URL: " + path)
 	}
 

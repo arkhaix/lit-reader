@@ -15,82 +15,82 @@ func init() {
 	s = NewScraper()
 }
 
-// IsSupportedStoryURL tests
+// CheckStoryURL tests
 
 func TestURLWithValidStoryURLSucceeds(t *testing.T) {
-	assert.Equal(t, true, s.IsSupportedStoryURL("https://www.fictionpress.com/s/2961893/1/Mother-of-Learning"))
+	assert.Equal(t, true, s.CheckStoryURL("https://www.fictionpress.com/s/2961893/1/Mother-of-Learning"))
 }
 
 func TestURLWithHTTPProtocolSucceeds(t *testing.T) {
 	// This should succeed because the protocol is ignored and forced to https
-	assert.Equal(t, true, s.IsSupportedStoryURL("http://www.fictionpress.com/s/2961893/1/Mother-of-Learning"))
+	assert.Equal(t, true, s.CheckStoryURL("http://www.fictionpress.com/s/2961893/1/Mother-of-Learning"))
 }
 
 func TestURLWithEmptyProtocolSucceeds(t *testing.T) {
 	// This should succeed because the protocol is ignored and forced to https
-	assert.Equal(t, true, s.IsSupportedStoryURL("www.fictionpress.com/s/2961893/1/Mother-of-Learning"))
+	assert.Equal(t, true, s.CheckStoryURL("www.fictionpress.com/s/2961893/1/Mother-of-Learning"))
 }
 
 func TestURLWithInvalidProtocolSucceeds(t *testing.T) {
 	// This should succeed because the protocol is ignored and forced to https
-	assert.Equal(t, true, s.IsSupportedStoryURL("ftp://www.fictionpress.com/s/2961893/1/Mother-of-Learning"))
+	assert.Equal(t, true, s.CheckStoryURL("ftp://www.fictionpress.com/s/2961893/1/Mother-of-Learning"))
 }
 
 func TestUnparseableURLFails(t *testing.T) {
-	assert.Equal(t, false, s.IsSupportedStoryURL("ht&tps://www.fictionpress.com/s/2961893/1/Mother-of-Learning"))
-	assert.Equal(t, false, s.IsSupportedStoryURL("https://www.fictionpress.com/%^&s/2961893/1/Mother-of-Learning"))
+	assert.Equal(t, false, s.CheckStoryURL("ht&tps://www.fictionpress.com/s/2961893/1/Mother-of-Learning"))
+	assert.Equal(t, false, s.CheckStoryURL("https://www.fictionpress.com/%^&s/2961893/1/Mother-of-Learning"))
 }
 
 func TestURLWithEmptySubdomainFails(t *testing.T) {
-	assert.Equal(t, false, s.IsSupportedStoryURL("https://fictionpress.com/s/2961893/1/Mother-of-Learning"))
+	assert.Equal(t, false, s.CheckStoryURL("https://fictionpress.com/s/2961893/1/Mother-of-Learning"))
 }
 
 func TestURLWithInvalidSubdomainFails(t *testing.T) {
-	assert.Equal(t, false, s.IsSupportedStoryURL("https://invalid.fictionpress.com/s/2961893/1/Mother-of-Learning"))
+	assert.Equal(t, false, s.CheckStoryURL("https://invalid.fictionpress.com/s/2961893/1/Mother-of-Learning"))
 }
 
 func TestURLWithEmptyDomainFails(t *testing.T) {
-	assert.Equal(t, false, s.IsSupportedStoryURL("https:///s/2961893/1/Mother-of-Learning"))
+	assert.Equal(t, false, s.CheckStoryURL("https:///s/2961893/1/Mother-of-Learning"))
 }
 
 func TestURLWithInvalidDomainFails(t *testing.T) {
-	assert.Equal(t, false, s.IsSupportedStoryURL("https://www.example.com/s/2961893/1/Mother-of-Learning"))
+	assert.Equal(t, false, s.CheckStoryURL("https://www.example.com/s/2961893/1/Mother-of-Learning"))
 }
 
 func TestURLWithEmptyTLDFails(t *testing.T) {
-	assert.Equal(t, false, s.IsSupportedStoryURL("https://www.fictionpress./s/2961893/1/Mother-of-Learning"))
+	assert.Equal(t, false, s.CheckStoryURL("https://www.fictionpress./s/2961893/1/Mother-of-Learning"))
 }
 
 func TestURLWithInvalidTLDFails(t *testing.T) {
-	assert.Equal(t, false, s.IsSupportedStoryURL("https://www.fictionpress.net/s/2961893/1/Mother-of-Learning"))
+	assert.Equal(t, false, s.CheckStoryURL("https://www.fictionpress.net/s/2961893/1/Mother-of-Learning"))
 }
 
 func TestURLWithEmptyPrefixFails(t *testing.T) {
-	assert.Equal(t, false, s.IsSupportedStoryURL("https://www.fictionpress.com//2961893/1/Mother-of-Learning"))
+	assert.Equal(t, false, s.CheckStoryURL("https://www.fictionpress.com//2961893/1/Mother-of-Learning"))
 }
 
 func TestURLWithInvalidPathFails(t *testing.T) {
-	assert.Equal(t, false, s.IsSupportedStoryURL("https://www.fictionpress.com/st/2961893/1/Mother-of-Learning"))
+	assert.Equal(t, false, s.CheckStoryURL("https://www.fictionpress.com/st/2961893/1/Mother-of-Learning"))
 }
 
 func TestURLWithEmptyStoryIDFails(t *testing.T) {
-	assert.Equal(t, false, s.IsSupportedStoryURL("https://www.fictionpress.com/s//1/Mother-of-Learning"))
+	assert.Equal(t, false, s.CheckStoryURL("https://www.fictionpress.com/s//1/Mother-of-Learning"))
 }
 
 func TestURLWithAlphaStoryIDFails(t *testing.T) {
-	assert.Equal(t, false, s.IsSupportedStoryURL("https://www.fictionpress.com/s/A2961893/1/Mother-of-Learning"))
+	assert.Equal(t, false, s.CheckStoryURL("https://www.fictionpress.com/s/A2961893/1/Mother-of-Learning"))
 }
 
 func TestURLWithEmptyChapterIDFails(t *testing.T) {
-	assert.Equal(t, false, s.IsSupportedStoryURL("https://www.fictionpress.com/s/2961893//Mother-of-Learning"))
+	assert.Equal(t, false, s.CheckStoryURL("https://www.fictionpress.com/s/2961893//Mother-of-Learning"))
 }
 
 func TestURLWithAlphaChapterIDFails(t *testing.T) {
-	assert.Equal(t, false, s.IsSupportedStoryURL("https://www.fictionpress.com/s/2961893/A/Mother-of-Learning"))
+	assert.Equal(t, false, s.CheckStoryURL("https://www.fictionpress.com/s/2961893/A/Mother-of-Learning"))
 }
 
 func TestURLWithEmptySuffixFails(t *testing.T) {
-	assert.Equal(t, false, s.IsSupportedStoryURL("https://www.fictionpress.com/s/2961893/1//"))
+	assert.Equal(t, false, s.CheckStoryURL("https://www.fictionpress.com/s/2961893/1//"))
 }
 
 // FetchStoryMetadata failure tests

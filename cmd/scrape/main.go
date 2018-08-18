@@ -25,7 +25,7 @@ func main() {
 	flag.Parse()
 
 	// Validate
-	if !scraper.IsSupportedStoryURL(*url) {
+	if !scraper.CheckStoryURL(*url) {
 		fmt.Println("Unsupported story URL")
 		return
 	}
