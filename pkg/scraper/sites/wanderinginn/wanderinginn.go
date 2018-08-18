@@ -84,7 +84,6 @@ func (scraper Scraper) FetchStoryMetadata(path string) (common.Story, error) {
 			Title: linkText,
 			URL:   absoluteLink.String(),
 			HTML:  "",
-			Text:  "",
 		})
 	})
 
@@ -125,23 +124,16 @@ func (scraper Scraper) FetchChapter(storyURL string, index int) (common.Chapter,
 	// parse
 	var callbackError error
 	c.OnHTML("div.entry-content", func(e *colly.HTMLElement) {
-		story.Chapters[index].Text = strings.TrimSpace(e.Text)
 		story.Chapters[index].HTML, err = e.DOM.Html()
 		if err != nil {
 			callbackError = err
 		}
 
 		// Insert the chapter title at the beginning of the chapter
-		story.Chapters[index].Text =
-			story.Chapters[index].Title + "\n" + story.Chapters[index].Text
 		story.Chapters[index].HTML =
 			"<h1>" + story.Chapters[index].Title + "</h1>" + story.Chapters[index].HTML
 
 		// Remove the "Previous Chapter" and "Next Chapter" links
-		story.Chapters[index].Text = strings.Replace(story.Chapters[index].Text,
-			"Previous Chapter", "", 1)
-		story.Chapters[index].Text = strings.Replace(story.Chapters[index].Text,
-			"Next Chapter", "", 1)
 		story.Chapters[index].HTML = strings.Replace(story.Chapters[index].HTML,
 			"Previous Chapter", "", 1)
 		story.Chapters[index].HTML = strings.Replace(story.Chapters[index].HTML,

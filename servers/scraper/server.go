@@ -41,7 +41,6 @@ func (s *Server) FetchChapter(ctx context.Context, in *api.FetchChapterRequest) 
 	return &api.FetchChapterResponse{
 		Url:   chapter.URL,
 		Title: chapter.Title,
-		Text:  chapter.Text,
 		Html:  chapter.HTML,
 	}, err
 }

@@ -42,16 +42,12 @@ func TestWanderingInnIntegration(t *testing.T) {
 
 	expectedChapterURL := "https://wanderinginn.com/2016/07/27/1-00/"
 	expectedChapterTitle := "1.00"
-	expectedTextSum := "1c41ad2677a045895b7c58336662fa745d0469f5832167154a08f360ab13b3d5"
 	expectedHTMLSum := "29543cfb7c01ea294688bca8aeb60afe0badf591aa202d0d51b17876e7ac98cf"
-	textSum := sha256.Sum256([]byte(c.Text))
-	textSumStr := fmt.Sprintf("%x", textSum)
 	htmlSum := sha256.Sum256([]byte(c.HTML))
 	htmlSumStr := fmt.Sprintf("%x", htmlSum)
 
 	assert.Equal(t, expectedChapterURL, c.URL, "Chapter URL must match")
 	assert.Equal(t, expectedChapterTitle, c.Title, "Chapter title must match")
-	assert.Equal(t, expectedTextSum, textSumStr, "Chapter text must match")
 	assert.Equal(t, expectedHTMLSum, htmlSumStr, "Chapter HTML must match")
 }
 

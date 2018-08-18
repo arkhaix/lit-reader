@@ -121,7 +121,6 @@ func (scraper Scraper) FetchStoryMetadata(path string) (common.Story, error) {
 			Title: chapterTitle,
 			URL:   absoluteLink.String(),
 			HTML:  "",
-			Text:  "",
 		})
 	})
 
@@ -163,21 +162,16 @@ func (scraper Scraper) FetchChapter(storyURL string, index int) (common.Chapter,
 	var callbackError error
 	// c.OnHTML(".chapter .userstuff", func(e *colly.HTMLElement) {
 	c.OnHTML(".chapter [role=article]", func(e *colly.HTMLElement) {
-		story.Chapters[index].Text = strings.TrimSpace(e.Text)
 		story.Chapters[index].HTML, err = e.DOM.Html()
 		if err != nil {
 			callbackError = err
 		}
 
 		// Get rid of the "Chapter Text" header in each chapter
-		story.Chapters[index].Text = strings.Replace(story.Chapters[index].Text,
-			"Chapter Text", "", 1)
 		story.Chapters[index].HTML = strings.Replace(story.Chapters[index].HTML,
 			"<h3 class=\"landmark heading\" id=\"work\">Chapter Text</h3>", "", 1)
 
 		// Insert the chapter title at the beginning of the chapter
-		story.Chapters[index].Text =
-			story.Chapters[index].Title + "\n" + story.Chapters[index].Text
 		story.Chapters[index].HTML =
 			"<p><h1>" + story.Chapters[index].Title + "</h1></p>" + story.Chapters[index].HTML
 

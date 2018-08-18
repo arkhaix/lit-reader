@@ -13,7 +13,6 @@ type Chapter struct {
 	Title string
 	URL   string
 	HTML  string
-	Text  string
 }
 
 // Scraper is the interface implemented by each site scraper for fetching stories

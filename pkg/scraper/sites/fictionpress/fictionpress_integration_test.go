@@ -40,16 +40,12 @@ func TestFictionPressIntegration(t *testing.T) {
 
 	expectedChapterURL := "https://www.fictionpress.com/s/2922431/1/A-Lucky-Apocalypse"
 	expectedChapterTitle := "Chapter 1"
-	expectedTextSum := "9c8fa415b39ae1a863c0a82161360d89d7595ff900e608ac661aa74928d803bb"
 	expectedHTMLSum := "20ba190838a61d6ecfbdfaeb810366326220f6a2d9bb774955d9382060be888d"
-	textSum := sha256.Sum256([]byte(c.Text))
-	textSumStr := fmt.Sprintf("%x", textSum)
 	htmlSum := sha256.Sum256([]byte(c.HTML))
 	htmlSumStr := fmt.Sprintf("%x", htmlSum)
 
 	assert.Equal(t, expectedChapterURL, c.URL, "Chapter URL must match")
 	assert.Equal(t, expectedChapterTitle, c.Title, "Chapter title must match")
-	assert.Equal(t, expectedTextSum, textSumStr, "Chapter text must match")
 	assert.Equal(t, expectedHTMLSum, htmlSumStr, "Chapter HTML must match")
 }
 

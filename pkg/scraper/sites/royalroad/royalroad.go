@@ -91,7 +91,6 @@ func (scraper Scraper) FetchStoryMetadata(path string) (common.Story, error) {
 			Title: linkText,
 			URL:   absoluteLink.String(),
 			HTML:  "",
-			Text:  "",
 		})
 	})
 
@@ -132,7 +131,6 @@ func (scraper Scraper) FetchChapter(storyURL string, index int) (common.Chapter,
 	// parse
 	var callbackError error
 	c.OnHTML(".chapter-content", func(e *colly.HTMLElement) {
-		story.Chapters[index].Text = strings.TrimSpace(e.Text)
 		story.Chapters[index].HTML, err = e.DOM.Html()
 		if err != nil {
 			callbackError = err
