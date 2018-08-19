@@ -10,6 +10,7 @@ RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o ./scraperserver .
 
 # Result stage
 FROM alpine
+RUN apk add --no-cache ca-certificates 
 WORKDIR /app
 COPY --from=builder /go/src/github.com/arkhaix/lit-reader/scraperserver /app/
 EXPOSE 50051
