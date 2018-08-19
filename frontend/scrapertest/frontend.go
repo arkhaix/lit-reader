@@ -1,39 +1,74 @@
 package main
 
 import (
+	"fmt"
 	"log"
-	"os"
+	"net/http"
 	"time"
 
-	api "github.com/arkhaix/lit-reader/api/scraper"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
+
+	_ "github.com/davecgh/go-spew/spew"
+	"github.com/go-chi/chi"
+	"github.com/go-chi/render"
+
+	api "github.com/arkhaix/lit-reader/api/scraper"
 )
 
 const (
 	address    = "localhost:50051"
 	defaultURL = "wanderinginn.com"
+	timeout    = 10 * time.Second
+)
+
+var (
+	client api.ScraperClient
 )
 
 func main() {
-	// Set up a connection to the server.
+	// Set up gRPC client
 	conn, err := grpc.Dial(address, grpc.WithInsecure())
 	if err != nil {
 		log.Fatalf("did not connect: %v", err)
 	}
 	defer conn.Close()
-	c := api.NewScraperClient(conn)
+	client = api.NewScraperClient(conn)
 
-	// Contact the server and print out its response.
-	storyURL := defaultURL
-	if len(os.Args) > 1 {
-		storyURL = os.Args[1]
+	// Route http
+	r := chi.NewRouter()
+	r.Use(render.SetContentType(render.ContentTypeJSON))
+
+	r.Route("/story", func(r chi.Router) {
+		r.Get("/search", storySearch)
+	})
+
+	log.Fatal(http.ListenAndServe(":8080", r))
+}
+
+func storySearch(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		http.Error(w, "invalid method", http.StatusBadRequest)
+		return
 	}
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+
+	storyURL := r.URL.Query().Get("url")
+
+	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
-	r, err := c.CheckStoryURL(ctx, &api.CheckStoryURLRequest{Url: storyURL})
+
+	// result, err := client.CheckStoryURL(ctx, &api.CheckStoryURLRequest{Url: storyURL})
+	result, err := client.FetchStoryMetadata(ctx, &api.FetchStoryMetadataRequest{
+		Url: storyURL,
+	})
+
 	if err != nil {
-		log.Fatalf("could not check: %v", err)
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
 	}
-	log.Printf("Result: %v", r.Allowed)
+
+	// w.Write([]byte(fmt.Sprintf("{\"allowed\":%v}", result.GetAllowed())))
+	// w.Write([]byte(spew.Sdump(result)))
+	w.Write([]byte(fmt.Sprintf("url: '%s'\ntitle: '%s'\nauthor: '%s'\nchapters: %d",
+		result.GetUrl(), result.GetTitle(), result.GetAuthor(), result.GetNumChapters())))
 }
