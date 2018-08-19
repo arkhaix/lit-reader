@@ -12,9 +12,9 @@
 *.out
 
 # Binaries from cmd/
-scrape
-scraperserver
-scrapertest
+/scrape
+/scraperserver
+/scrapertest
 
 # Artifacts from local testing
 *.epub
