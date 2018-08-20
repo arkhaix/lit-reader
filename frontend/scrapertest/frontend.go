@@ -1,14 +1,15 @@
-package scrapertest
+package main
 
 import (
-	"log"
 	"net/http"
 	"time"
 
 	"google.golang.org/grpc"
 
 	"github.com/go-chi/chi"
+	"github.com/go-chi/docgen"
 	"github.com/go-chi/render"
+	log "github.com/sirupsen/logrus"
 
 	api "github.com/arkhaix/lit-reader/api/scraper"
 	"github.com/arkhaix/lit-reader/frontend/scrapertest/handlers"
@@ -30,13 +31,22 @@ func main() {
 	handlers.ScraperClient = api.NewScraperClient(conn)
 	handlers.ScraperTimeout = 10 * time.Second
 
-	// Route http
+	// Routes
 	r := chi.NewRouter()
 	r.Use(render.SetContentType(render.ContentTypeJSON))
 
 	r.Route("/story", func(r chi.Router) {
-		r.Get("/search", handlers.StorySearch)
+		r.Get("/{storyID}", handlers.GetStoryByID)
+		r.Post("/", handlers.PostStoryByURL)
+
+		r.Route("/{storyID}/chapter", func(r chi.Router) {
+			r.Get("/{chapterID}", handlers.GetChapterByID)
+		})
 	})
 
+	docgen.PrintRoutes(r)
+
+	// Listen
+	log.Info("Listening...")
 	log.Fatal(http.ListenAndServe(":8080", r))
 }
