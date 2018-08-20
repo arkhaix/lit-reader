@@ -1,0 +1,35 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: scraper-grpc
+spec:
+  selector:
+    app: scraper-grpc
+    tier: backend
+  ports:
+  - protocol: TCP
+    port: 50051
+    targetPort: 50051
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: scraper-grpc-deployment
+  labels:
+    app: scraper-grpc
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: scraper-grpc
+  template:
+    metadata:
+      labels:
+        app: scraper-grpc
+    spec:
+      containers:
+      - name: scraper-grpc
+        image: arkhaix/scraper_grpc
+        imagePullPolicy: Never # for minikube only. delete for live deployment
+        ports:
+        - containerPort: 50051

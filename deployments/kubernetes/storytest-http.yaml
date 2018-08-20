@@ -1,0 +1,41 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: storytest-http
+spec:
+  selector:
+    app: storytest-http
+    tier: frontend
+  ports:
+  - protocol: "TCP"
+    port: 8080
+    targetPort: 8080
+  type: LoadBalancer
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: storytest-http
+spec:
+  selector:
+    matchLabels:
+      app: storytest-http
+      tier: frontend
+      track: stable
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: storytest-http
+        tier: frontend
+        track: stable
+    spec:
+      containers:
+      - name: storytest-http
+        image: arkhaix/storytest_http
+        imagePullPolicy: Never # for minikube only. delete for live deployment
+        ports:
+        - containerPort: 8080
+        env:
+        - name: SCRAPER_HOST
+          value: "scraper-grpc:50051"
