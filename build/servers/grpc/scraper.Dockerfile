@@ -4,7 +4,6 @@ FROM golang:1.10 AS builder
 ENV GOPATH /go
 ADD . /go/src/github.com/arkhaix/lit-reader
 WORKDIR /go/src/github.com/arkhaix/lit-reader
-RUN go get -d ./...
 
 RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o ./scraper_grpc ./cmd/servers/grpc/scraper
 
