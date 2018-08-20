@@ -2,6 +2,7 @@ package main
 
 import (
 	"net/http"
+	"os"
 	"time"
 
 	"google.golang.org/grpc"
@@ -21,10 +22,18 @@ import (
 )
 
 const (
-	address = "localhost:50051"
+	envScraperHost = "SCRAPER_HOST"
 )
 
 func main() {
+	// Determine scraper service address
+	var address = "localhost:50051"
+	addr, ok := os.LookupEnv(envScraperHost)
+	if ok {
+		address = addr
+	}
+	log.Infof("Connecting to scraper host at %s", address)
+
 	// Set up gRPC client
 	conn, err := grpc.Dial(address, grpc.WithInsecure())
 	if err != nil {
