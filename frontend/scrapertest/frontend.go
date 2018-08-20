@@ -35,6 +35,10 @@ func main() {
 	r := chi.NewRouter()
 	r.Use(render.SetContentType(render.ContentTypeJSON))
 
+	r.Route("/", func(r chi.Router) {
+		r.Get("/", handlers.GetIndex)
+	})
+
 	r.Route("/story", func(r chi.Router) {
 		r.Get("/{storyID}", handlers.GetStoryByID)
 		r.Post("/", handlers.PostStoryByURL)
