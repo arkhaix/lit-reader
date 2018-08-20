@@ -1,10 +1,11 @@
-package handlers
+package story
 
 import (
 	"net/http"
 	"strconv"
 	"strings"
 	"sync"
+	"time"
 
 	"golang.org/x/net/context"
 
@@ -13,6 +14,17 @@ import (
 
 	api "github.com/arkhaix/lit-reader/api/scraper"
 	"github.com/arkhaix/lit-reader/common"
+	httpcommon "github.com/arkhaix/lit-reader/internal/servers/http/common"
+)
+
+var (
+	// ScraperClient is the gRPC client for communicating with the scraper service.
+	// Set this before using the handlers
+	ScraperClient api.ScraperClient
+
+	// ScraperTimeout is the gRPC timeout.
+	// Set this before using the handlers
+	ScraperTimeout time.Duration
 )
 
 type stories struct {
@@ -35,14 +47,14 @@ func GetStoryByID(w http.ResponseWriter, r *http.Request) {
 	idStr := chi.URLParam(r, "storyID")
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
-		render.Render(w, r, errInvalidRequest(err))
+		render.Render(w, r, httpcommon.ErrInvalidRequest(err))
 		return
 	}
 
 	data.m.RLock()
 	if id < 0 || id >= len(data.stories) {
 		data.m.RUnlock()
-		render.Render(w, r, errNotFound())
+		render.Render(w, r, httpcommon.ErrNotFound())
 		return
 	}
 	story := data.stories[id]
@@ -57,7 +69,7 @@ func PostStoryByURL(w http.ResponseWriter, r *http.Request) {
 	// Parse params
 	requestData := &storyRequest{}
 	if err := render.Bind(r, requestData); err != nil {
-		render.Render(w, r, errInvalidRequest(err))
+		render.Render(w, r, httpcommon.ErrInvalidRequest(err))
 		return
 	}
 	storyURL := requestData.URL
@@ -106,27 +118,27 @@ func GetChapterByID(w http.ResponseWriter, r *http.Request) {
 	storyIDStr := chi.URLParam(r, "storyID")
 	storyID, err := strconv.Atoi(storyIDStr)
 	if err != nil {
-		render.Render(w, r, errInvalidRequest(err))
+		render.Render(w, r, httpcommon.ErrInvalidRequest(err))
 		return
 	}
 	chapterIDStr := chi.URLParam(r, "chapterID")
 	chapterID, err := strconv.Atoi(chapterIDStr)
 	if err != nil {
-		render.Render(w, r, errInvalidRequest(err))
+		render.Render(w, r, httpcommon.ErrInvalidRequest(err))
 		return
 	}
 
 	data.m.RLock()
 	if storyID < 0 || storyID >= len(data.stories) {
 		data.m.RUnlock()
-		render.Render(w, r, errNotFound())
+		render.Render(w, r, httpcommon.ErrNotFound())
 		return
 	}
 	story := data.stories[storyID]
 
 	if chapterID < 0 || chapterID >= len(story.Chapters) {
 		data.m.RUnlock()
-		render.Render(w, r, errNotFound())
+		render.Render(w, r, httpcommon.ErrNotFound())
 	}
 	chapter := story.Chapters[chapterID]
 	data.m.RUnlock()

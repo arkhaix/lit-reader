@@ -1,11 +1,11 @@
-package handlers
+package testpage
 
 import (
 	"net/http"
 )
 
-// GetIndex prints stuff
-func GetIndex(w http.ResponseWriter, r *http.Request) {
+// GetTestIndex prints a test site
+func GetTestIndex(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte(`
 		<!DOCTYPE html>
 		<html>

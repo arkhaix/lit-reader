@@ -8,7 +8,7 @@ import (
 	"google.golang.org/grpc/reflection"
 
 	api "github.com/arkhaix/lit-reader/api/scraper"
-	server "github.com/arkhaix/lit-reader/servers/scraper"
+	server "github.com/arkhaix/lit-reader/internal/servers/grpc/scraper"
 )
 
 const (

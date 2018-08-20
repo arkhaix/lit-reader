@@ -1,25 +1,13 @@
-package handlers
+package common
 
 import (
 	"net/http"
 
 	"github.com/go-chi/render"
-
-	api "github.com/arkhaix/lit-reader/api/scraper"
-	"time"
 )
 
-var (
-	// ScraperClient is the gRPC client for communicating with the scraper service.
-	// Set this before using the handlers
-	ScraperClient api.ScraperClient
-
-	// ScraperTimeout is the gRPC timeout.
-	// Set this before using the handlers
-	ScraperTimeout time.Duration
-)
-
-type errResponse struct {
+// ErrResponse is the general response struct used by handlers
+type ErrResponse struct {
 	Err            error `json:"-"` // low-level runtime error
 	HTTPStatusCode int   `json:"-"` // http response status code
 
@@ -28,13 +16,15 @@ type errResponse struct {
 	ErrorText  string `json:"error,omitempty"` // application-level error message, for debugging
 }
 
-func (e *errResponse) Render(w http.ResponseWriter, r *http.Request) error {
+// Render renders an ErrResponse
+func (e *ErrResponse) Render(w http.ResponseWriter, r *http.Request) error {
 	render.Status(r, e.HTTPStatusCode)
 	return nil
 }
 
-func errInternalError(err error) render.Renderer {
-	return &errResponse{
+// ErrInternalError returns an ErrResponse with status 500
+func ErrInternalError(err error) render.Renderer {
+	return &ErrResponse{
 		Err:            err,
 		HTTPStatusCode: 500,
 		StatusText:     "Internal error",
@@ -42,8 +32,9 @@ func errInternalError(err error) render.Renderer {
 	}
 }
 
-func errInvalidRequest(err error) render.Renderer {
-	return &errResponse{
+// ErrInvalidRequest returns an ErrResponse with status 400
+func ErrInvalidRequest(err error) render.Renderer {
+	return &ErrResponse{
 		Err:            err,
 		HTTPStatusCode: 400,
 		StatusText:     "Invalid request.",
@@ -51,15 +42,17 @@ func errInvalidRequest(err error) render.Renderer {
 	}
 }
 
-func errNotFound() render.Renderer {
-	return &errResponse{
+// ErrNotFound returns an ErrResponse with status 404
+func ErrNotFound() render.Renderer {
+	return &ErrResponse{
 		HTTPStatusCode: 404,
 		StatusText:     "Resource not found.",
 	}
 }
 
-func errRender(err error) render.Renderer {
-	return &errResponse{
+// ErrRender returns an ErrResponse with status 422
+func ErrRender(err error) render.Renderer {
+	return &ErrResponse{
 		Err:            err,
 		HTTPStatusCode: 422,
 		StatusText:     "Error rendering response.",
