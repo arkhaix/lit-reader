@@ -15,6 +15,7 @@
 /scrape
 /scraperserver
 /scrapertest
+/storytest
 
 # Artifacts from local testing
 *.epub

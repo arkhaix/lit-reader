@@ -6,12 +6,12 @@ ADD . /go/src/github.com/arkhaix/lit-reader
 WORKDIR /go/src/github.com/arkhaix/lit-reader
 RUN go get -d ./...
 
-RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o ./scraperserver ./cmd/scraperserver
+RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o ./storytest_http ./cmd/servers/http/storytest
 
 # Result stage
 FROM alpine
 RUN apk add --no-cache ca-certificates 
 WORKDIR /app
-COPY --from=builder /go/src/github.com/arkhaix/lit-reader/scraperserver /app/
-EXPOSE 50051
-ENTRYPOINT ["/app/scraperserver"]
+COPY --from=builder /go/src/github.com/arkhaix/lit-reader/storytest_http /app/
+EXPOSE 8080
+ENTRYPOINT ["/app/storytest_http"]
