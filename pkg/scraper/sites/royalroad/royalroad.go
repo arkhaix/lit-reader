@@ -102,6 +102,13 @@ func (scraper Scraper) fetchStoryMetadata(path string) (common.Story, error) {
 		})
 	})
 
+	// errors
+	c.OnError(func(r *colly.Response, err error) {
+		if err != nil {
+			callbackError = err
+		}
+	})
+
 	c.Visit(path)
 
 	if callbackError != nil {
