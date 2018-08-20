@@ -9,10 +9,15 @@ import (
 	"github.com/go-chi/chi"
 	"github.com/go-chi/docgen"
 	"github.com/go-chi/render"
+
 	log "github.com/sirupsen/logrus"
 
+	// grpc
 	api "github.com/arkhaix/lit-reader/api/scraper"
-	"github.com/arkhaix/lit-reader/frontend/scrapertest/handlers"
+
+	// http handlers
+	"github.com/arkhaix/lit-reader/internal/servers/http/story"
+	"github.com/arkhaix/lit-reader/internal/servers/http/testpage"
 )
 
 const (
@@ -28,23 +33,23 @@ func main() {
 	defer conn.Close()
 
 	// Set up handlers
-	handlers.ScraperClient = api.NewScraperClient(conn)
-	handlers.ScraperTimeout = 10 * time.Second
+	story.ScraperClient = api.NewScraperClient(conn)
+	story.ScraperTimeout = 10 * time.Second
 
 	// Routes
 	r := chi.NewRouter()
 	r.Use(render.SetContentType(render.ContentTypeJSON))
 
 	r.Route("/", func(r chi.Router) {
-		r.Get("/", handlers.GetIndex)
+		r.Get("/", testpage.GetTestIndex)
 	})
 
 	r.Route("/story", func(r chi.Router) {
-		r.Get("/{storyID}", handlers.GetStoryByID)
-		r.Post("/", handlers.PostStoryByURL)
+		r.Get("/{storyID}", story.GetStoryByID)
+		r.Post("/", story.PostStoryByURL)
 
 		r.Route("/{storyID}/chapter", func(r chi.Router) {
-			r.Get("/{chapterID}", handlers.GetChapterByID)
+			r.Get("/{chapterID}", story.GetChapterByID)
 		})
 	})
 
