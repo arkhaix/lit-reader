@@ -13,4 +13,4 @@ services:
     ports:
      - "8080:8080"
     environment:
-     - SCRAPER_HOST=scraper-grpc:50051
+     - SCRAPER_HOST=scraper-grpc:3000

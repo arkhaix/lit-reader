@@ -26,8 +26,16 @@ const (
 )
 
 func main() {
+	log.Info("=====")
+	log.Info("Environment")
+	envVars := os.Environ()
+	for _, s := range envVars {
+		log.Info(s)
+	}
+	log.Info("=====")
+
 	// Determine scraper service address
-	var address = "localhost:50051"
+	var address = "localhost:3000"
 	addr, ok := os.LookupEnv(envScraperHost)
 	if ok {
 		address = addr
