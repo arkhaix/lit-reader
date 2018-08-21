@@ -36,10 +36,14 @@ spec:
     spec:
       containers:
         - name: storytest-http
-          image: arkhaix/storytest-http
-          imagePullPolicy: Never # for minikube only. delete for live deployment
+          # minikube
+          image: storytest-http
+          imagePullPolicy: Never
+          # google container engine
+          #image: gcr.io/arkhaix-lit-reader/storytest-http
+          #imagePullPolicy: Always
           ports:
             - containerPort: 8080
           env:
-            - name: SCRAPER_HOST
-              value: "scraper-grpc:3000"
+            - name: SCRAPER_GRPC_SERVICE_HOSTNAME
+              value: "scraper-grpc"

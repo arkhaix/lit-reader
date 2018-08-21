@@ -21,8 +21,9 @@ import (
 	"github.com/arkhaix/lit-reader/internal/servers/http/testpage"
 )
 
-const (
-	envScraperHost = "SCRAPER_HOST"
+var (
+	scraperHostName = "localhost"
+	scraperPort     = "3000"
 )
 
 func main() {
@@ -35,11 +36,13 @@ func main() {
 	log.Info("=====")
 
 	// Determine scraper service address
-	var address = "localhost:3000"
-	addr, ok := os.LookupEnv(envScraperHost)
-	if ok {
-		address = addr
+	if envScraperHostName, ok := os.LookupEnv("SCRAPER_GRPC_SERVICE_HOSTNAME"); ok {
+		scraperHostName = envScraperHostName
 	}
+	if envScraperPort, ok := os.LookupEnv("SCRAPER_GRPC_SERVICE_PORT"); ok {
+		scraperPort = envScraperPort
+	}
+	address := scraperHostName + ":" + scraperPort
 	log.Infof("Connecting to scraper host at %s", address)
 
 	// Set up gRPC client

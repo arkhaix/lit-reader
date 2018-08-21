@@ -13,7 +13,7 @@ import (
 	server "github.com/arkhaix/lit-reader/internal/servers/grpc/scraper"
 )
 
-const (
+var (
 	port = ":3000"
 )
 
@@ -25,6 +25,10 @@ func main() {
 		log.Info(s)
 	}
 	log.Info("=====")
+
+	if envPort, ok := os.LookupEnv("SCRAPER_GRPC_SERVICE_PORT"); ok {
+		port = envPort
+	}
 
 	lis, err := net.Listen("tcp", port)
 	if err != nil {

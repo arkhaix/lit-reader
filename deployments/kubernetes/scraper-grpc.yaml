@@ -32,8 +32,12 @@ spec:
     spec:
       containers:
       - name: scraper-grpc
-        image: arkhaix/scraper-grpc
-        imagePullPolicy: Never # for minikube only. delete for live deployment
+        # minikube
+        image: scraper-grpc
+        imagePullPolicy: Never
+        # google container engine
+        #image: gcr.io/arkhaix-lit-reader/scraper-grpc
+        #imagePullPolicy: Always
         ports:
         - name: grpc
           containerPort: 3000

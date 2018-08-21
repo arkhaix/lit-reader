@@ -12,5 +12,5 @@ FROM alpine
 RUN apk add --no-cache ca-certificates 
 WORKDIR /app
 COPY --from=builder /go/src/github.com/arkhaix/lit-reader/scraper_grpc /app/
-EXPOSE 50051
+EXPOSE 3000
 ENTRYPOINT ["/app/scraper_grpc"]
