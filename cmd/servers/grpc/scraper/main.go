@@ -14,7 +14,7 @@ import (
 )
 
 var (
-	port = ":3000"
+	port = "3000"
 )
 
 func main() {
@@ -29,6 +29,7 @@ func main() {
 	if envPort, ok := os.LookupEnv("SCRAPER_GRPC_SERVICE_PORT"); ok {
 		port = envPort
 	}
+	port = ":" + port
 
 	lis, err := net.Listen("tcp", port)
 	if err != nil {

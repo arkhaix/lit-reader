@@ -2,37 +2,25 @@ apiVersion: v1
 kind: Service
 metadata:
   name: storytest-http
-  labels:
-    app: storytest-http
 spec:
   selector:
     app: storytest-http
-    tier: frontend
   ports:
     - name: http
       port: 8080
       targetPort: 8080
   type: LoadBalancer
 ---
-apiVersion: apps/v1
+apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
   name: storytest-http
-  labels:
-    app: storytest-http
 spec:
-  selector:
-    matchLabels:
-      app: storytest-http
-      tier: frontend
-      track: stable
   replicas: 1
   template:
     metadata:
       labels:
         app: storytest-http
-        tier: frontend
-        track: stable
     spec:
       containers:
         - name: storytest-http
@@ -43,7 +31,8 @@ spec:
           #image: gcr.io/arkhaix-lit-reader/storytest-http
           #imagePullPolicy: Always
           ports:
-            - containerPort: 8080
+            - name: http
+              containerPort: 8080
           env:
             - name: SCRAPER_GRPC_SERVICE_HOSTNAME
               value: "scraper-grpc"
