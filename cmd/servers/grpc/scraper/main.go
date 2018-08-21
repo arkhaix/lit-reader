@@ -36,7 +36,7 @@ func main() {
 		log.Fatalf("failed to listen: %v", err)
 	}
 	s := grpc.NewServer()
-	api.RegisterScraperServer(s, &server.Server{})
+	api.RegisterScraperServiceServer(s, &server.Server{})
 	reflection.Register(s)
 	log.Info("Serving grpc on", lis.Addr().String())
 	if err := s.Serve(lis); err != nil {

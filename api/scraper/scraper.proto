@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package scraper;
 
-service Scraper {
+service ScraperService {
   // CheckStoryURL returns true if the specified URL matches the expected
   // pattern of a story supported by this service
   rpc CheckStoryURL (CheckStoryURLRequest) returns (CheckStoryURLResponse) {}

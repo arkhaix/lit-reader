@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+package common;
+
+option go_package = "github.com/arkhaix/lit-reader/api/common";
+
+message Response {
+  int32 statusCode = 1;
+  string statusText = 2;
+}

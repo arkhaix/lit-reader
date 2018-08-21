@@ -1,0 +1,36 @@
+syntax = "proto3";
+
+package story;
+
+import "api/common/response.proto";
+
+service StoryService {
+  rpc CreateStory (CreateStoryRequest) returns (CreateStoryResponse) {}
+  rpc GetStory (GetStoryRequest) returns (GetStoryResponse) {}
+}
+
+message CreateStoryRequest {
+  string url = 1;
+}
+
+message CreateStoryResponse {
+  common.Response response = 1;
+  Story story = 2;
+}
+
+message GetStoryRequest {
+  string id = 1;
+}
+
+message GetStoryResponse {
+  common.Response response = 1;
+  Story story = 2;
+}
+
+message Story {
+  string id = 1;
+  string url = 2;
+  string title = 3;
+  string author = 4;
+  int32 numChapters = 5;
+}

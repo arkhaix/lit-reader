@@ -22,7 +22,7 @@ import (
 var (
 	// ScraperClient is the gRPC client for communicating with the scraper service.
 	// Set this before using the handlers
-	ScraperClient api.ScraperClient
+	ScraperClient api.ScraperServiceClient
 
 	// ScraperTimeout is the gRPC timeout.
 	// Set this before using the handlers

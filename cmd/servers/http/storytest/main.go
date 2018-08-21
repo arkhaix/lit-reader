@@ -53,7 +53,7 @@ func main() {
 	defer conn.Close()
 
 	// Set up handlers
-	story.ScraperClient = api.NewScraperClient(conn)
+	story.ScraperClient = api.NewScraperServiceClient(conn)
 	story.ScraperTimeout = 10 * time.Second
 
 	// Routes
