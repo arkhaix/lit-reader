@@ -1,16 +1,16 @@
 version: '3'
 services:
-  scraper_grpc:
+  scraper-grpc:
     build:
       context: ../../
       dockerfile: ./build/servers/grpc/scraper.Dockerfile
     ports:
      - "50051:50051"
-  storytest_http:
+  storytest-http:
     build:
       context: ../../
       dockerfile: ./build/servers/http/storytest.Dockerfile
     ports:
      - "8080:8080"
     environment:
-     - SCRAPER_HOST=scraper_grpc:50051
+     - SCRAPER_HOST=scraper-grpc:50051

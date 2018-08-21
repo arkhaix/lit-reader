@@ -12,6 +12,8 @@ import (
 	"github.com/go-chi/chi"
 	"github.com/go-chi/render"
 
+	log "github.com/sirupsen/logrus"
+
 	api "github.com/arkhaix/lit-reader/api/scraper"
 	"github.com/arkhaix/lit-reader/common"
 	httpcommon "github.com/arkhaix/lit-reader/internal/servers/http/common"
@@ -45,6 +47,7 @@ func init() {
 func GetStoryByID(w http.ResponseWriter, r *http.Request) {
 	// Parse params
 	idStr := chi.URLParam(r, "storyID")
+	log.Infof("In: GetStoryByID(%s)", idStr)
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
 		render.Render(w, r, httpcommon.ErrInvalidRequest(err))
@@ -60,6 +63,7 @@ func GetStoryByID(w http.ResponseWriter, r *http.Request) {
 	story := data.stories[id]
 	data.m.RUnlock()
 
+	log.Infof("Out: GetStoryById(%d): %s", id, story.Title)
 	render.Render(w, r, storyResponseFromStory(id, story))
 }
 
@@ -74,6 +78,7 @@ func PostStoryByURL(w http.ResponseWriter, r *http.Request) {
 	}
 	storyURL := requestData.URL
 	cacheKey := cacheKeyFromURL(storyURL)
+	log.Infof("In: PostStoryByURL(%s)", cacheKey)
 
 	// Check index
 	response := storyResponse{}
@@ -81,6 +86,7 @@ func PostStoryByURL(w http.ResponseWriter, r *http.Request) {
 	storyIndex, ok := data.storyIndex[cacheKey]
 	if ok {
 		response = storyResponseFromStory(storyIndex, data.stories[storyIndex])
+		log.Infof("Cached: PostStoryByURL(%s): %s", cacheKey, response.Title)
 	}
 	data.m.RUnlock()
 
@@ -88,14 +94,17 @@ func PostStoryByURL(w http.ResponseWriter, r *http.Request) {
 		// RPC
 		ctx, cancel := context.WithTimeout(context.Background(), ScraperTimeout)
 		defer cancel()
+		log.Infof("RpcOut: PostStoryByURL(%s)", storyURL)
 		result, err := ScraperClient.FetchStoryMetadata(ctx, &api.FetchStoryMetadataRequest{
 			Url: storyURL,
 		})
 
 		if err != nil {
+			log.Warnf("RpcFail: PostStoryByUrl(%s): %s", storyURL, err.Error())
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
+		log.Infof("RpcGood: PostStoryByURL(%s): %s", storyURL, result.GetTitle())
 
 		// Store result
 		data.m.Lock()
@@ -127,6 +136,7 @@ func GetChapterByID(w http.ResponseWriter, r *http.Request) {
 		render.Render(w, r, httpcommon.ErrInvalidRequest(err))
 		return
 	}
+	log.Infof("In: GetChapterByID(%d, %d)", storyID, chapterID)
 
 	data.m.RLock()
 	if storyID < 0 || storyID >= len(data.stories) {
@@ -145,6 +155,7 @@ func GetChapterByID(w http.ResponseWriter, r *http.Request) {
 
 	// RPC
 	if len(chapter.HTML) == 0 {
+		log.Infof("RpcOut: GetChapterByID(%s, %d)", story.Title, chapterID)
 		ctx, cancel := context.WithTimeout(context.Background(), ScraperTimeout)
 		defer cancel()
 		result, err := ScraperClient.FetchChapter(ctx, &api.FetchChapterRequest{
@@ -153,11 +164,13 @@ func GetChapterByID(w http.ResponseWriter, r *http.Request) {
 		})
 
 		if err != nil {
+			log.Warnf("RpcFail: GetChapterByID(%s, %d): %s", story.Title, chapterID, err.Error())
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
 
 		// Store result
+		log.Infof("RpcGood: GetChapterByID(%s, %d): %s", story.Title, chapterID, result.GetTitle())
 		chapter.URL = result.GetUrl()
 		chapter.Title = result.GetTitle()
 		chapter.HTML = result.GetHtml()
@@ -166,6 +179,8 @@ func GetChapterByID(w http.ResponseWriter, r *http.Request) {
 			data.stories[storyID].Chapters[chapterID] = chapter
 		}
 		data.m.Unlock()
+	} else {
+		log.Infof("Cached: GetChapterByID(%s, %d): %s", story.Title, chapterID, chapter.Title)
 	}
 
 	render.Render(w, r, chapterResponseFromChapter(chapterID, chapter))
