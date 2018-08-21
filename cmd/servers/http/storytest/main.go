@@ -2,6 +2,7 @@ package main
 
 import (
 	"net/http"
+	"os"
 	"time"
 
 	"google.golang.org/grpc"
@@ -20,11 +21,30 @@ import (
 	"github.com/arkhaix/lit-reader/internal/servers/http/testpage"
 )
 
-const (
-	address = "localhost:50051"
+var (
+	scraperHostName = "localhost"
+	scraperPort     = "3000"
 )
 
 func main() {
+	log.Info("=====")
+	log.Info("Environment")
+	envVars := os.Environ()
+	for _, s := range envVars {
+		log.Info(s)
+	}
+	log.Info("=====")
+
+	// Determine scraper service address
+	if envScraperHostName, ok := os.LookupEnv("SCRAPER_GRPC_SERVICE_HOSTNAME"); ok {
+		scraperHostName = envScraperHostName
+	}
+	if envScraperPort, ok := os.LookupEnv("SCRAPER_GRPC_SERVICE_PORT"); ok {
+		scraperPort = envScraperPort
+	}
+	address := scraperHostName + ":" + scraperPort
+	log.Infof("Connecting to scraper host at %s", address)
+
 	// Set up gRPC client
 	conn, err := grpc.Dial(address, grpc.WithInsecure())
 	if err != nil {
