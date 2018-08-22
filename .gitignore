@@ -13,9 +13,10 @@
 
 # Binaries from cmd/
 /scrape
-/scraperserver
-/scrapertest
+/scraper-grpc
 /storytest
+/story-grpc
+/story-http
 
 # Artifacts from local testing
 *.epub
