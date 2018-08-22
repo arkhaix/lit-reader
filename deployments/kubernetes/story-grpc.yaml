@@ -1,34 +1,37 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: "scraper-grpc"
+  name: "story-grpc"
 spec:
   selector:
-    app: "scraper-grpc"
+    app: "story-grpc"
   ports:
     - protocol: "TCP"
-      port: 3000
-      targetPort: 3000
+      port: 3001
+      targetPort: 3001
 ---
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  name: scraper-grpc
+  name: story-grpc
 spec:
   replicas: 1
   template:
     metadata:
       labels:
-        app: scraper-grpc
+        app: story-grpc
     spec:
       containers:
-        - name: scraper-grpc
+        - name: story-grpc
           # minikube
-          #image: scraper-grpc
+          #image: story-grpc
           #imagePullPolicy: Never
           # google container engine
-          image: gcr.io/arkhaix-lit-reader/scraper-grpc
+          image: gcr.io/arkhaix-lit-reader/story-grpc
           imagePullPolicy: Always
           ports:
             - name: grpc
-              containerPort: 3000
+              containerPort: 3001
+          env:
+            - name: SCRAPER_GRPC_SERVICE_HOSTNAME
+              value: "scraper-grpc"
