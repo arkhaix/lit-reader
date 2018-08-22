@@ -1,6 +1,7 @@
 package story
 
 import (
+	"database/sql"
 	"time"
 
 	context "golang.org/x/net/context"
@@ -9,7 +10,6 @@ import (
 
 	"github.com/arkhaix/lit-reader/internal/servers/grpc/common"
 
-	apicommon "github.com/arkhaix/lit-reader/api/common"
 	apiscraper "github.com/arkhaix/lit-reader/api/scraper"
 	apistory "github.com/arkhaix/lit-reader/api/story"
 )
@@ -18,45 +18,52 @@ import (
 type Server struct {
 	ScraperClient  apiscraper.ScraperServiceClient
 	ScraperTimeout time.Duration
+	DB             *sql.DB
 }
 
 // CreateStory returns the story id and metadata for the queried url, scraping it first if necessary.
-func (s *Server) CreateStory(_ context.Context, req *apistory.CreateStoryRequest) (*apistory.CreateStoryResponse, error) {
-	log.Infof("In: CreateStory(%s)", req.GetUrl())
+func (s *Server) CreateStory(ctx context.Context, req *apistory.CreateStoryRequest) (*apistory.CreateStoryResponse, error) {
+	url := req.GetUrl()
+	log.Infof("In: CreateStory(%s)", url)
 
-	// TODO: db read
+	response := &apistory.CreateStoryResponse{}
 
-	response := s.fetchStoryFromScraper(req.GetUrl())
+	id, err := s.queryStoryByURL(url)
+	log.Infof("Query (%s) returned id %s", url, id)
+	if len(id) > 0 && err == nil {
+		getResponse, _ := s.GetStory(ctx, &apistory.GetStoryRequest{Id: id})
+		response.Status = getResponse.Status
+		response.Data = getResponse.Data
+	} else {
+		response = s.fetchStoryFromScraper(url)
+		if response.Status.GetStatusCode() == 200 && response.Data != nil {
+			id, err = s.saveStoryToDb(response.Data)
+			if err == nil {
+				response.Data.Id = id
+			}
+		}
+	}
 
-	// TODO: db store
-
-	log.Infof("Out: CreateStory(%s): %s", req.GetUrl(), response.GetData().GetId())
-
+	log.Infof("Out: CreateStory(%s): %s", url, response.GetData().GetId())
 	return response, nil
 }
 
 // GetStory returns the metadata for a previously-scraped story.
-func (*Server) GetStory(_ context.Context, req *apistory.GetStoryRequest) (*apistory.GetStoryResponse, error) {
+func (s *Server) GetStory(_ context.Context, req *apistory.GetStoryRequest) (*apistory.GetStoryResponse, error) {
+
 	log.Infof("In: GetStory(%s)", req.GetId())
 
-	// Todo: db read
-
-	story := &apistory.Story{
-		Id:          req.GetId(),
-		Url:         "example.com",
-		Title:       "Title",
-		Author:      "Author",
-		NumChapters: 1,
+	story, err := s.fetchStoryFromDb(req.GetId())
+	status := common.StatusOk
+	if err != nil {
+		status = common.StatusNotFound
 	}
 
 	log.Infof("Out: GetStory(%s): %s", req.GetId(), story.Url)
 
 	return &apistory.GetStoryResponse{
-		Status: &apicommon.Status{
-			StatusCode: 200,
-			StatusText: "ok",
-		},
-		Data: story,
+		Status: status,
+		Data:   story,
 	}, nil
 }
 
@@ -99,7 +106,6 @@ func (s *Server) fetchStoryFromScraper(url string) *apistory.CreateStoryResponse
 	return &apistory.CreateStoryResponse{
 		Status: common.StatusOk,
 		Data: &apistory.Story{
-			Id:          "1234",
 			Url:         result.GetUrl(),
 			Title:       result.GetTitle(),
 			Author:      result.GetAuthor(),

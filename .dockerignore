@@ -5,3 +5,4 @@
 *.epub
 build
 deployments
+cockroach-data

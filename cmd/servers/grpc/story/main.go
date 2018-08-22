@@ -1,6 +1,7 @@
 package main
 
 import (
+	"database/sql"
 	"net"
 	"os"
 	"time"
@@ -8,6 +9,7 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 
+	_ "github.com/lib/pq"
 	log "github.com/sirupsen/logrus"
 
 	server "github.com/arkhaix/lit-reader/internal/servers/grpc/story"
@@ -56,10 +58,17 @@ func main() {
 	}
 	defer scraperConn.Close()
 
+	// Connect to db
+	db, err := sql.Open("postgres", "postgresql://maxroach@roach:26257/story?sslmode=disable")
+	if err != nil {
+		log.Fatal("Error connecting to the database")
+	}
+
 	// Config server
 	storyServer := server.Server{
 		ScraperClient:  apiscraper.NewScraperServiceClient(scraperConn),
 		ScraperTimeout: 10 * time.Second,
+		DB:             db,
 	}
 
 	// Listen
