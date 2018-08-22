@@ -9,7 +9,7 @@ import (
 	"github.com/arkhaix/lit-reader/pkg/scraper"
 )
 
-// Server implements api.ScraperServer
+// Server implements api.ScraperServiceServer
 type Server struct{}
 
 // CheckStoryURL returns true if the specified URL matches the expected

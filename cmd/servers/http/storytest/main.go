@@ -17,7 +17,7 @@ import (
 	api "github.com/arkhaix/lit-reader/api/scraper"
 
 	// http handlers
-	"github.com/arkhaix/lit-reader/internal/servers/http/story"
+	"github.com/arkhaix/lit-reader/internal/servers/http/storytest"
 	"github.com/arkhaix/lit-reader/internal/servers/http/testpage"
 )
 
@@ -53,8 +53,8 @@ func main() {
 	defer conn.Close()
 
 	// Set up handlers
-	story.ScraperClient = api.NewScraperServiceClient(conn)
-	story.ScraperTimeout = 10 * time.Second
+	storytest.ScraperClient = api.NewScraperServiceClient(conn)
+	storytest.ScraperTimeout = 10 * time.Second
 
 	// Routes
 	r := chi.NewRouter()
@@ -65,11 +65,11 @@ func main() {
 	})
 
 	r.Route("/story", func(r chi.Router) {
-		r.Get("/{storyID}", story.GetStoryByID)
-		r.Post("/", story.PostStoryByURL)
+		r.Get("/{storyID}", storytest.GetStoryByID)
+		r.Post("/", storytest.PostStoryByURL)
 
 		r.Route("/{storyID}/chapter", func(r chi.Router) {
-			r.Get("/{chapterID}", story.GetChapterByID)
+			r.Get("/{chapterID}", storytest.GetChapterByID)
 		})
 	})
 

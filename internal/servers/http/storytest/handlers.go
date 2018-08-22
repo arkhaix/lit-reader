@@ -1,4 +1,4 @@
-package story
+package storytest
 
 import (
 	"net/http"
