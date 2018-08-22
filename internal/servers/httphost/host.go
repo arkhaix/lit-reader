@@ -3,7 +3,6 @@ package httphost
 import (
 	"net/http"
 	"os"
-	"time"
 
 	"google.golang.org/grpc"
 
@@ -11,12 +10,6 @@ import (
 	"github.com/go-chi/docgen"
 
 	log "github.com/sirupsen/logrus"
-
-	// grpc
-	api "github.com/arkhaix/lit-reader/api/story"
-
-	// http handlers
-	"github.com/arkhaix/lit-reader/internal/servers/http/story"
 )
 
 // Params stuff
@@ -71,8 +64,7 @@ func Host(params Params, router *chi.Mux, onConnect OnConnectFunc) {
 	defer conn.Close()
 
 	// Set up handlers
-	story.Client = api.NewStoryServiceClient(conn)
-	story.Timeout = 10 * time.Second
+	onConnect(conn)
 
 	// Routes
 	docgen.PrintRoutes(router)
