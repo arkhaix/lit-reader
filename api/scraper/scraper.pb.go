@@ -34,7 +34,7 @@ func (m *CheckStoryURLRequest) Reset()         { *m = CheckStoryURLRequest{} }
 func (m *CheckStoryURLRequest) String() string { return proto.CompactTextString(m) }
 func (*CheckStoryURLRequest) ProtoMessage()    {}
 func (*CheckStoryURLRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_scraper_0a6b167aa046985f, []int{0}
+	return fileDescriptor_scraper_908a2db4479c8412, []int{0}
 }
 func (m *CheckStoryURLRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_CheckStoryURLRequest.Unmarshal(m, b)
@@ -72,7 +72,7 @@ func (m *CheckStoryURLResponse) Reset()         { *m = CheckStoryURLResponse{} }
 func (m *CheckStoryURLResponse) String() string { return proto.CompactTextString(m) }
 func (*CheckStoryURLResponse) ProtoMessage()    {}
 func (*CheckStoryURLResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_scraper_0a6b167aa046985f, []int{1}
+	return fileDescriptor_scraper_908a2db4479c8412, []int{1}
 }
 func (m *CheckStoryURLResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_CheckStoryURLResponse.Unmarshal(m, b)
@@ -110,7 +110,7 @@ func (m *FetchStoryMetadataRequest) Reset()         { *m = FetchStoryMetadataReq
 func (m *FetchStoryMetadataRequest) String() string { return proto.CompactTextString(m) }
 func (*FetchStoryMetadataRequest) ProtoMessage()    {}
 func (*FetchStoryMetadataRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_scraper_0a6b167aa046985f, []int{2}
+	return fileDescriptor_scraper_908a2db4479c8412, []int{2}
 }
 func (m *FetchStoryMetadataRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_FetchStoryMetadataRequest.Unmarshal(m, b)
@@ -151,7 +151,7 @@ func (m *FetchStoryMetadataResponse) Reset()         { *m = FetchStoryMetadataRe
 func (m *FetchStoryMetadataResponse) String() string { return proto.CompactTextString(m) }
 func (*FetchStoryMetadataResponse) ProtoMessage()    {}
 func (*FetchStoryMetadataResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_scraper_0a6b167aa046985f, []int{3}
+	return fileDescriptor_scraper_908a2db4479c8412, []int{3}
 }
 func (m *FetchStoryMetadataResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_FetchStoryMetadataResponse.Unmarshal(m, b)
@@ -211,7 +211,7 @@ func (m *FetchChapterRequest) Reset()         { *m = FetchChapterRequest{} }
 func (m *FetchChapterRequest) String() string { return proto.CompactTextString(m) }
 func (*FetchChapterRequest) ProtoMessage()    {}
 func (*FetchChapterRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_scraper_0a6b167aa046985f, []int{4}
+	return fileDescriptor_scraper_908a2db4479c8412, []int{4}
 }
 func (m *FetchChapterRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_FetchChapterRequest.Unmarshal(m, b)
@@ -258,7 +258,7 @@ func (m *FetchChapterResponse) Reset()         { *m = FetchChapterResponse{} }
 func (m *FetchChapterResponse) String() string { return proto.CompactTextString(m) }
 func (*FetchChapterResponse) ProtoMessage()    {}
 func (*FetchChapterResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_scraper_0a6b167aa046985f, []int{5}
+	return fileDescriptor_scraper_908a2db4479c8412, []int{5}
 }
 func (m *FetchChapterResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_FetchChapterResponse.Unmarshal(m, b)
@@ -316,10 +316,10 @@ var _ grpc.ClientConn
 // is compatible with the grpc package it is being compiled against.
 const _ = grpc.SupportPackageIsVersion4
 
-// ScraperClient is the client API for Scraper service.
+// ScraperServiceClient is the client API for ScraperService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
-type ScraperClient interface {
+type ScraperServiceClient interface {
 	// CheckStoryURL returns true if the specified URL matches the expected
 	// pattern of a story supported by this service
 	CheckStoryURL(ctx context.Context, in *CheckStoryURLRequest, opts ...grpc.CallOption) (*CheckStoryURLResponse, error)
@@ -330,43 +330,43 @@ type ScraperClient interface {
 	FetchChapter(ctx context.Context, in *FetchChapterRequest, opts ...grpc.CallOption) (*FetchChapterResponse, error)
 }
 
-type scraperClient struct {
+type scraperServiceClient struct {
 	cc *grpc.ClientConn
 }
 
-func NewScraperClient(cc *grpc.ClientConn) ScraperClient {
-	return &scraperClient{cc}
+func NewScraperServiceClient(cc *grpc.ClientConn) ScraperServiceClient {
+	return &scraperServiceClient{cc}
 }
 
-func (c *scraperClient) CheckStoryURL(ctx context.Context, in *CheckStoryURLRequest, opts ...grpc.CallOption) (*CheckStoryURLResponse, error) {
+func (c *scraperServiceClient) CheckStoryURL(ctx context.Context, in *CheckStoryURLRequest, opts ...grpc.CallOption) (*CheckStoryURLResponse, error) {
 	out := new(CheckStoryURLResponse)
-	err := c.cc.Invoke(ctx, "/scraper.Scraper/CheckStoryURL", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/scraper.ScraperService/CheckStoryURL", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *scraperClient) FetchStoryMetadata(ctx context.Context, in *FetchStoryMetadataRequest, opts ...grpc.CallOption) (*FetchStoryMetadataResponse, error) {
+func (c *scraperServiceClient) FetchStoryMetadata(ctx context.Context, in *FetchStoryMetadataRequest, opts ...grpc.CallOption) (*FetchStoryMetadataResponse, error) {
 	out := new(FetchStoryMetadataResponse)
-	err := c.cc.Invoke(ctx, "/scraper.Scraper/FetchStoryMetadata", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/scraper.ScraperService/FetchStoryMetadata", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *scraperClient) FetchChapter(ctx context.Context, in *FetchChapterRequest, opts ...grpc.CallOption) (*FetchChapterResponse, error) {
+func (c *scraperServiceClient) FetchChapter(ctx context.Context, in *FetchChapterRequest, opts ...grpc.CallOption) (*FetchChapterResponse, error) {
 	out := new(FetchChapterResponse)
-	err := c.cc.Invoke(ctx, "/scraper.Scraper/FetchChapter", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/scraper.ScraperService/FetchChapter", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-// ScraperServer is the server API for Scraper service.
-type ScraperServer interface {
+// ScraperServiceServer is the server API for ScraperService service.
+type ScraperServiceServer interface {
 	// CheckStoryURL returns true if the specified URL matches the expected
 	// pattern of a story supported by this service
 	CheckStoryURL(context.Context, *CheckStoryURLRequest) (*CheckStoryURLResponse, error)
@@ -377,108 +377,108 @@ type ScraperServer interface {
 	FetchChapter(context.Context, *FetchChapterRequest) (*FetchChapterResponse, error)
 }
 
-func RegisterScraperServer(s *grpc.Server, srv ScraperServer) {
-	s.RegisterService(&_Scraper_serviceDesc, srv)
+func RegisterScraperServiceServer(s *grpc.Server, srv ScraperServiceServer) {
+	s.RegisterService(&_ScraperService_serviceDesc, srv)
 }
 
-func _Scraper_CheckStoryURL_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _ScraperService_CheckStoryURL_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(CheckStoryURLRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ScraperServer).CheckStoryURL(ctx, in)
+		return srv.(ScraperServiceServer).CheckStoryURL(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/scraper.Scraper/CheckStoryURL",
+		FullMethod: "/scraper.ScraperService/CheckStoryURL",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ScraperServer).CheckStoryURL(ctx, req.(*CheckStoryURLRequest))
+		return srv.(ScraperServiceServer).CheckStoryURL(ctx, req.(*CheckStoryURLRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Scraper_FetchStoryMetadata_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _ScraperService_FetchStoryMetadata_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(FetchStoryMetadataRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ScraperServer).FetchStoryMetadata(ctx, in)
+		return srv.(ScraperServiceServer).FetchStoryMetadata(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/scraper.Scraper/FetchStoryMetadata",
+		FullMethod: "/scraper.ScraperService/FetchStoryMetadata",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ScraperServer).FetchStoryMetadata(ctx, req.(*FetchStoryMetadataRequest))
+		return srv.(ScraperServiceServer).FetchStoryMetadata(ctx, req.(*FetchStoryMetadataRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Scraper_FetchChapter_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _ScraperService_FetchChapter_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(FetchChapterRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ScraperServer).FetchChapter(ctx, in)
+		return srv.(ScraperServiceServer).FetchChapter(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/scraper.Scraper/FetchChapter",
+		FullMethod: "/scraper.ScraperService/FetchChapter",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ScraperServer).FetchChapter(ctx, req.(*FetchChapterRequest))
+		return srv.(ScraperServiceServer).FetchChapter(ctx, req.(*FetchChapterRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-var _Scraper_serviceDesc = grpc.ServiceDesc{
-	ServiceName: "scraper.Scraper",
-	HandlerType: (*ScraperServer)(nil),
+var _ScraperService_serviceDesc = grpc.ServiceDesc{
+	ServiceName: "scraper.ScraperService",
+	HandlerType: (*ScraperServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
 			MethodName: "CheckStoryURL",
-			Handler:    _Scraper_CheckStoryURL_Handler,
+			Handler:    _ScraperService_CheckStoryURL_Handler,
 		},
 		{
 			MethodName: "FetchStoryMetadata",
-			Handler:    _Scraper_FetchStoryMetadata_Handler,
+			Handler:    _ScraperService_FetchStoryMetadata_Handler,
 		},
 		{
 			MethodName: "FetchChapter",
-			Handler:    _Scraper_FetchChapter_Handler,
+			Handler:    _ScraperService_FetchChapter_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
 	Metadata: "api/scraper/scraper.proto",
 }
 
-func init() { proto.RegisterFile("api/scraper/scraper.proto", fileDescriptor_scraper_0a6b167aa046985f) }
+func init() { proto.RegisterFile("api/scraper/scraper.proto", fileDescriptor_scraper_908a2db4479c8412) }
 
-var fileDescriptor_scraper_0a6b167aa046985f = []byte{
-	// 323 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x94, 0x52, 0x5d, 0x4b, 0xc3, 0x30,
-	0x14, 0x75, 0x1f, 0x5d, 0xe7, 0x75, 0x82, 0x5c, 0xab, 0x74, 0xc5, 0x49, 0x89, 0x2f, 0x7d, 0x71,
-	0xa2, 0xfe, 0x84, 0x81, 0x20, 0x38, 0x90, 0x8c, 0x3d, 0x4b, 0x6c, 0x03, 0x1d, 0x76, 0x4d, 0x4d,
-	0x52, 0xd4, 0x17, 0xff, 0x80, 0x7f, 0x5a, 0x4c, 0x3f, 0x58, 0xdd, 0x2a, 0xf8, 0xd4, 0x9c, 0x93,
-	0x73, 0xef, 0xb9, 0xb7, 0x27, 0x30, 0x66, 0xd9, 0xea, 0x4a, 0x85, 0x92, 0x65, 0x5c, 0x56, 0xdf,
-	0x69, 0x26, 0x85, 0x16, 0x68, 0x97, 0x90, 0x04, 0xe0, 0xcc, 0x62, 0x1e, 0xbe, 0x2c, 0xb4, 0x90,
-	0x1f, 0x4b, 0xfa, 0x40, 0xf9, 0x6b, 0xce, 0x95, 0xc6, 0x23, 0xe8, 0xe5, 0x32, 0x71, 0x3b, 0x7e,
-	0x27, 0xd8, 0xa7, 0x3f, 0x47, 0x72, 0x0d, 0x27, 0xbf, 0x94, 0x2a, 0x13, 0xa9, 0xe2, 0xe8, 0x82,
-	0xcd, 0x92, 0x44, 0xbc, 0xf1, 0xc8, 0xc8, 0x87, 0xb4, 0x82, 0xe4, 0x12, 0xc6, 0x77, 0x5c, 0x87,
-	0xb1, 0x29, 0x99, 0x73, 0xcd, 0x22, 0xa6, 0x59, 0xbb, 0xc3, 0x27, 0x78, 0xbb, 0xe4, 0xa5, 0xcd,
-	0x96, 0x1e, 0x1d, 0xb0, 0xf4, 0x4a, 0x27, 0xdc, 0xed, 0x1a, 0xae, 0x00, 0x78, 0x0a, 0x03, 0x96,
-	0xeb, 0x58, 0x48, 0xb7, 0x67, 0xe8, 0x12, 0xa1, 0x0f, 0x07, 0x69, 0xbe, 0x9e, 0xc5, 0x2c, 0xd3,
-	0x5c, 0x2a, 0xb7, 0xef, 0x77, 0x02, 0x8b, 0x6e, 0x52, 0x64, 0x09, 0xc7, 0xc6, 0xbf, 0x24, 0xaa,
-	0x41, 0x3d, 0x18, 0x2a, 0xb3, 0x73, 0xed, 0x5e, 0x63, 0x24, 0x30, 0x0a, 0x0b, 0xf5, 0x7d, 0x1a,
-	0xf1, 0x77, 0x33, 0x89, 0x45, 0x1b, 0x1c, 0xa1, 0xe0, 0x34, 0xdb, 0xfe, 0x73, 0x21, 0x84, 0x7e,
-	0xac, 0xd7, 0x49, 0xb9, 0x8e, 0x39, 0xdf, 0x7c, 0x75, 0xc1, 0x5e, 0x14, 0x11, 0xe2, 0x23, 0x1c,
-	0x36, 0x82, 0xc1, 0xc9, 0xb4, 0x0a, 0x7b, 0x57, 0xb4, 0xde, 0x79, 0xdb, 0x75, 0x31, 0x17, 0xd9,
-	0xc3, 0x27, 0xc0, 0xed, 0x20, 0x90, 0xd4, 0x75, 0xad, 0xa1, 0x7a, 0x17, 0x7f, 0x6a, 0x6a, 0x83,
-	0x39, 0x8c, 0x36, 0x7f, 0x09, 0x9e, 0x35, 0xcb, 0x9a, 0x01, 0x78, 0x93, 0x96, 0xdb, 0xaa, 0xdd,
-	0xf3, 0xc0, 0x3c, 0xea, 0xdb, 0xef, 0x00, 0x00, 0x00, 0xff, 0xff, 0x29, 0x9f, 0xd8, 0x3a, 0xf1,
-	0x02, 0x00, 0x00,
+var fileDescriptor_scraper_908a2db4479c8412 = []byte{
+	// 328 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x94, 0x52, 0xdb, 0x4a, 0xc3, 0x40,
+	0x10, 0xb5, 0xf7, 0x3a, 0x56, 0x91, 0xb1, 0x4a, 0x1a, 0xac, 0x94, 0xf5, 0xa5, 0x2f, 0x56, 0xd4,
+	0x4f, 0x28, 0x08, 0x82, 0x05, 0xd9, 0xd2, 0x67, 0x59, 0xd3, 0x81, 0x04, 0xd3, 0x6c, 0xdc, 0xdd,
+	0x78, 0x79, 0xf1, 0x23, 0xfc, 0x62, 0x71, 0x73, 0xa1, 0xb1, 0x8d, 0xe0, 0x53, 0xf6, 0x9c, 0x3d,
+	0x33, 0x67, 0x26, 0x67, 0x61, 0x20, 0xe2, 0xe0, 0x52, 0x7b, 0x4a, 0xc4, 0xa4, 0xf2, 0xef, 0x24,
+	0x56, 0xd2, 0x48, 0xec, 0x64, 0x90, 0x8d, 0xa1, 0x3f, 0xf5, 0xc9, 0x7b, 0x9e, 0x1b, 0xa9, 0x3e,
+	0x16, 0xfc, 0x9e, 0xd3, 0x4b, 0x42, 0xda, 0xe0, 0x21, 0x34, 0x12, 0x15, 0x3a, 0xb5, 0x51, 0x6d,
+	0xbc, 0xcb, 0x7f, 0x8e, 0xec, 0x0a, 0x8e, 0x7f, 0x29, 0x75, 0x2c, 0x23, 0x4d, 0xe8, 0x40, 0x47,
+	0x84, 0xa1, 0x7c, 0xa3, 0xa5, 0x95, 0x77, 0x79, 0x0e, 0xd9, 0x05, 0x0c, 0x6e, 0xc9, 0x78, 0xbe,
+	0x2d, 0x99, 0x91, 0x11, 0x4b, 0x61, 0x44, 0xb5, 0xc3, 0x27, 0xb8, 0xdb, 0xe4, 0x99, 0xcd, 0x86,
+	0x1e, 0xfb, 0xd0, 0x32, 0x81, 0x09, 0xc9, 0xa9, 0x5b, 0x2e, 0x05, 0x78, 0x02, 0x6d, 0x91, 0x18,
+	0x5f, 0x2a, 0xa7, 0x61, 0xe9, 0x0c, 0xe1, 0x08, 0xf6, 0xa2, 0x64, 0x35, 0xf5, 0x45, 0x6c, 0x48,
+	0x69, 0xa7, 0x39, 0xaa, 0x8d, 0x5b, 0x7c, 0x9d, 0x62, 0x0b, 0x38, 0xb2, 0xfe, 0x19, 0x91, 0x0f,
+	0xea, 0x42, 0x57, 0xdb, 0x9d, 0x0b, 0xf7, 0x02, 0x23, 0x83, 0x9e, 0x97, 0xaa, 0xef, 0xa2, 0x25,
+	0xbd, 0xdb, 0x49, 0x5a, 0xbc, 0xc4, 0x31, 0x0e, 0xfd, 0x72, 0xdb, 0x7f, 0x2e, 0x84, 0xd0, 0xf4,
+	0xcd, 0x2a, 0xcc, 0xd6, 0xb1, 0xe7, 0xeb, 0xaf, 0x3a, 0x1c, 0xcc, 0xd3, 0x08, 0xe7, 0xa4, 0x5e,
+	0x03, 0x8f, 0xf0, 0x01, 0xf6, 0x4b, 0xf9, 0xe0, 0x70, 0x92, 0x67, 0xbe, 0x2d, 0x61, 0xf7, 0xac,
+	0xea, 0x3a, 0x1d, 0x8f, 0xed, 0xe0, 0x23, 0xe0, 0x66, 0x1e, 0xc8, 0x8a, 0xba, 0xca, 0x6c, 0xdd,
+	0xf3, 0x3f, 0x35, 0x85, 0xc1, 0x0c, 0x7a, 0xeb, 0x7f, 0x06, 0x4f, 0xcb, 0x65, 0xe5, 0x1c, 0xdc,
+	0x61, 0xc5, 0x6d, 0xde, 0xee, 0xa9, 0x6d, 0xdf, 0xf6, 0xcd, 0x77, 0x00, 0x00, 0x00, 0xff, 0xff,
+	0x90, 0x4f, 0x0b, 0xc8, 0xf8, 0x02, 0x00, 0x00,
 }

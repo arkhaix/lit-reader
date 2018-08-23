@@ -24,11 +24,11 @@ spec:
       containers:
         - name: scraper-grpc
           # minikube
-          image: scraper-grpc
-          imagePullPolicy: Never
+          #image: scraper-grpc
+          #imagePullPolicy: Never
           # google container engine
-          #image: gcr.io/arkhaix-lit-reader/scraper-grpc
-          #imagePullPolicy: Always
+          image: gcr.io/arkhaix-lit-reader/scraper-grpc
+          imagePullPolicy: Always
           ports:
             - name: grpc
               containerPort: 3000

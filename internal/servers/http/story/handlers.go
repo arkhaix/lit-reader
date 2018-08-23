@@ -2,9 +2,6 @@ package story
 
 import (
 	"net/http"
-	"strconv"
-	"strings"
-	"sync"
 	"time"
 
 	"golang.org/x/net/context"
@@ -14,188 +11,91 @@ import (
 
 	log "github.com/sirupsen/logrus"
 
-	api "github.com/arkhaix/lit-reader/api/scraper"
-	"github.com/arkhaix/lit-reader/common"
+	api "github.com/arkhaix/lit-reader/api/story"
 	httpcommon "github.com/arkhaix/lit-reader/internal/servers/http/common"
 )
 
 var (
-	// ScraperClient is the gRPC client for communicating with the scraper service.
+	// Client is the gRPC client for communicating with the story service.
 	// Set this before using the handlers
-	ScraperClient api.ScraperClient
+	Client api.StoryServiceClient
 
-	// ScraperTimeout is the gRPC timeout.
+	// Timeout is the gRPC timeout.
 	// Set this before using the handlers
-	ScraperTimeout time.Duration
+	Timeout time.Duration
 )
 
-type stories struct {
-	m          sync.RWMutex
-	stories    []common.Story
-	storyIndex map[string]int
-}
-
-var data stories
-
-func init() {
-	data = stories{}
-	data.stories = make([]common.Story, 0)
-	data.storyIndex = make(map[string]int)
-}
-
-// GetStoryByID returns a story's metadata by its ID
-func GetStoryByID(w http.ResponseWriter, r *http.Request) {
+// PostStory returns the story id and metadata for the queried url, scraping it first if necessary.
+func PostStory(w http.ResponseWriter, r *http.Request) {
 	// Parse params
-	idStr := chi.URLParam(r, "storyID")
-	log.Infof("In: GetStoryByID(%s)", idStr)
-	id, err := strconv.Atoi(idStr)
-	if err != nil {
-		render.Render(w, r, httpcommon.ErrInvalidRequest(err))
-		return
-	}
-
-	data.m.RLock()
-	if id < 0 || id >= len(data.stories) {
-		data.m.RUnlock()
-		render.Render(w, r, httpcommon.ErrNotFound())
-		return
-	}
-	story := data.stories[id]
-	data.m.RUnlock()
-
-	log.Infof("Out: GetStoryById(%d): %s", id, story.Title)
-	render.Render(w, r, storyResponseFromStory(id, story))
-}
-
-// PostStoryByURL retrieves a story's metadata from the provided URL, stores it,
-// and returns it
-func PostStoryByURL(w http.ResponseWriter, r *http.Request) {
-	// Parse params
-	requestData := &storyRequest{}
+	requestData := &postStoryRequest{}
 	if err := render.Bind(r, requestData); err != nil {
 		render.Render(w, r, httpcommon.ErrInvalidRequest(err))
 		return
 	}
 	storyURL := requestData.URL
-	cacheKey := cacheKeyFromURL(storyURL)
-	log.Infof("In: PostStoryByURL(%s)", cacheKey)
+	log.Debugf("In: PostStory(%s)", storyURL)
 
-	// Check index
-	response := storyResponse{}
-	data.m.RLock()
-	storyIndex, ok := data.storyIndex[cacheKey]
-	if ok {
-		response = storyResponseFromStory(storyIndex, data.stories[storyIndex])
-		log.Infof("Cached: PostStoryByURL(%s): %s", cacheKey, response.Title)
+	// RPC
+	ctx, cancel := context.WithTimeout(context.Background(), Timeout)
+	defer cancel()
+	log.Debugf("RpcOut: PostStory(%s)", storyURL)
+	result, err := Client.CreateStory(ctx, &api.CreateStoryRequest{
+		Url: storyURL,
+	})
+
+	if err != nil {
+		log.Errorf("RpcFail: PostStory(%s): %s", storyURL, err.Error())
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
-	data.m.RUnlock()
+	log.Debugf("RpcGood: PostStory(%s): %d", storyURL, result.GetStatus().GetStatusCode())
 
-	if !ok {
-		// RPC
-		ctx, cancel := context.WithTimeout(context.Background(), ScraperTimeout)
-		defer cancel()
-		log.Infof("RpcOut: PostStoryByURL(%s)", storyURL)
-		result, err := ScraperClient.FetchStoryMetadata(ctx, &api.FetchStoryMetadataRequest{
-			Url: storyURL,
-		})
-
-		if err != nil {
-			log.Warnf("RpcFail: PostStoryByUrl(%s): %s", storyURL, err.Error())
-			http.Error(w, err.Error(), http.StatusBadRequest)
-			return
-		}
-		log.Infof("RpcGood: PostStoryByURL(%s): %s", storyURL, result.GetTitle())
-
-		// Store result
-		data.m.Lock()
-		storyIndex, ok = data.storyIndex[cacheKey]
-		if !ok {
-			data.stories = append(data.stories, storyFromProto(result))
-			storyIndex = len(data.stories) - 1
-			data.storyIndex[cacheKey] = storyIndex
-		}
-		response = storyResponseFromStory(storyIndex, data.stories[storyIndex])
-		data.m.Unlock()
-	}
-
+	// Output
+	response := newPostStoryResponse(result)
+	log.Debugf("Out: PostStory(%s): %d", storyURL, response.Status.Code)
 	render.Render(w, r, response)
 }
 
-// GetChapterByID returns a story's metadata by its ID
-func GetChapterByID(w http.ResponseWriter, r *http.Request) {
+// GetStory returns the metadata for a previously-scraped story.
+func GetStory(w http.ResponseWriter, r *http.Request) {
 	// Parse params
-	storyIDStr := chi.URLParam(r, "storyID")
-	storyID, err := strconv.Atoi(storyIDStr)
-	if err != nil {
-		render.Render(w, r, httpcommon.ErrInvalidRequest(err))
-		return
-	}
-	chapterIDStr := chi.URLParam(r, "chapterID")
-	chapterID, err := strconv.Atoi(chapterIDStr)
-	if err != nil {
-		render.Render(w, r, httpcommon.ErrInvalidRequest(err))
-		return
-	}
-	log.Infof("In: GetChapterByID(%d, %d)", storyID, chapterID)
-
-	data.m.RLock()
-	if storyID < 0 || storyID >= len(data.stories) {
-		data.m.RUnlock()
-		render.Render(w, r, httpcommon.ErrNotFound())
-		return
-	}
-	story := data.stories[storyID]
-
-	if chapterID < 0 || chapterID >= len(story.Chapters) {
-		data.m.RUnlock()
-		render.Render(w, r, httpcommon.ErrNotFound())
-	}
-	chapter := story.Chapters[chapterID]
-	data.m.RUnlock()
+	id := chi.URLParam(r, "storyID")
+	log.Debugf("In: GetStory(%s)", id)
 
 	// RPC
-	if len(chapter.HTML) == 0 {
-		log.Infof("RpcOut: GetChapterByID(%s, %d)", story.Title, chapterID)
-		ctx, cancel := context.WithTimeout(context.Background(), ScraperTimeout)
-		defer cancel()
-		result, err := ScraperClient.FetchChapter(ctx, &api.FetchChapterRequest{
-			StoryUrl:     story.URL,
-			ChapterIndex: int32(chapterID),
-		})
+	ctx, cancel := context.WithTimeout(context.Background(), Timeout)
+	defer cancel()
+	log.Debugf("RpcOut: GetStory(%s)", id)
+	result, err := Client.GetStory(ctx, &api.GetStoryRequest{
+		Id: id,
+	})
 
-		if err != nil {
-			log.Warnf("RpcFail: GetChapterByID(%s, %d): %s", story.Title, chapterID, err.Error())
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-
-		// Store result
-		log.Infof("RpcGood: GetChapterByID(%s, %d): %s", story.Title, chapterID, result.GetTitle())
-		chapter.URL = result.GetUrl()
-		chapter.Title = result.GetTitle()
-		chapter.HTML = result.GetHtml()
-		data.m.Lock()
-		if len(data.stories[storyID].Chapters[chapterID].HTML) == 0 {
-			data.stories[storyID].Chapters[chapterID] = chapter
-		}
-		data.m.Unlock()
-	} else {
-		log.Infof("Cached: GetChapterByID(%s, %d): %s", story.Title, chapterID, chapter.Title)
+	if err != nil {
+		log.Errorf("RpcFail: GetStory(%s): %s", id, err.Error())
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
 
-	render.Render(w, r, chapterResponseFromChapter(chapterID, chapter))
+	log.Debugf("RpcGood: GetStory(%s): %d", id, result.GetStatus().GetStatusCode())
+
+	// Output
+	response := newGetStoryResponse(result)
+	log.Debugf("Out: GetStory(%s): %d", id, response.Status.Code)
+	render.Render(w, r, response)
 }
 
-type storyRequest struct {
+type postStoryRequest struct {
 	URL string
 }
 
-func (sr *storyRequest) Bind(r *http.Request) error {
+func (sr *postStoryRequest) Bind(r *http.Request) error {
 	return nil
 }
 
 type storyResponse struct {
-	ID          int
+	Status      httpcommon.Status
+	ID          string
 	URL         string
 	Title       string
 	Author      string
@@ -206,49 +106,24 @@ func (storyResponse) Render(http.ResponseWriter, *http.Request) error {
 	return nil
 }
 
-type chapterResponse struct {
-	ID    int
-	URL   string
-	Title string
-	HTML  string
-}
-
-func (chapterResponse) Render(http.ResponseWriter, *http.Request) error {
-	return nil
-}
-
-func cacheKeyFromURL(url string) string {
-	protocolIndex := strings.Index(url, "://")
-	if protocolIndex < 0 {
-		return url
-	}
-	return url[protocolIndex+3:]
-}
-
-func storyFromProto(pb *api.FetchStoryMetadataResponse) common.Story {
-	return common.Story{
-		URL:      pb.GetUrl(),
-		Title:    pb.GetTitle(),
-		Author:   pb.GetAuthor(),
-		Chapters: make([]common.Chapter, pb.GetNumChapters()),
+func newPostStoryResponse(pb *api.CreateStoryResponse) *storyResponse {
+	return &storyResponse{
+		Status:      httpcommon.NewStatusFromProto(pb.GetStatus()),
+		ID:          pb.GetData().GetId(),
+		URL:         pb.GetData().GetUrl(),
+		Title:       pb.GetData().GetTitle(),
+		Author:      pb.GetData().GetAuthor(),
+		NumChapters: int(pb.GetData().GetNumChapters()),
 	}
 }
 
-func storyResponseFromStory(id int, s common.Story) storyResponse {
-	return storyResponse{
-		ID:          id,
-		URL:         s.URL,
-		Title:       s.Title,
-		Author:      s.Author,
-		NumChapters: len(s.Chapters),
-	}
-}
-
-func chapterResponseFromChapter(id int, c common.Chapter) chapterResponse {
-	return chapterResponse{
-		ID:    id,
-		URL:   c.URL,
-		Title: c.Title,
-		HTML:  c.HTML,
+func newGetStoryResponse(pb *api.GetStoryResponse) *storyResponse {
+	return &storyResponse{
+		Status:      httpcommon.NewStatusFromProto(pb.GetStatus()),
+		ID:          pb.GetData().GetId(),
+		URL:         pb.GetData().GetUrl(),
+		Title:       pb.GetData().GetTitle(),
+		Author:      pb.GetData().GetAuthor(),
+		NumChapters: int(pb.GetData().GetNumChapters()),
 	}
 }

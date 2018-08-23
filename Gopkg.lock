@@ -145,6 +145,17 @@
   version = "v1.2.4"
 
 [[projects]]
+  branch = "master"
+  digest = "1:e7e7df4fe4a919051139317ec760b8ba56637ccd3cf731eacbdd36903c89a0e8"
+  name = "github.com/lib/pq"
+  packages = [
+    ".",
+    "oid",
+  ]
+  pruneopts = "UT"
+  revision = "55f6f2718ccb74a33366eb78dac69fa02124b91f"
+
+[[projects]]
   digest = "1:0028cb19b2e4c3112225cd871870f2d9cf49b9b4276531f03438a88e94be86fe"
   name = "github.com/pmezard/go-difflib"
   packages = ["difflib"]
@@ -340,6 +351,7 @@
     "github.com/gocolly/colly",
     "github.com/golang/protobuf/proto",
     "github.com/hashicorp/golang-lru",
+    "github.com/lib/pq",
     "github.com/sirupsen/logrus",
     "github.com/stretchr/testify/assert",
     "golang.org/x/net/context",

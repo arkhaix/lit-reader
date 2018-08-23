@@ -1,0 +1,57 @@
+version: '3'
+services:
+  cockroach:
+    image: cockroachdb/cockroach:v2.0.5
+    command: start --insecure
+    container_name: roach
+    ports:
+     - "8080:8080"
+     - "26257:26257"
+    volumes:
+     - ./cockroach-data/roach:/cockroach/cockroach-data
+     - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+  cockroach-init:
+    image: cockroach-init
+    build:
+      context: ../../
+      dockerfile: ./build/cockroach-init.Dockerfile
+    entrypoint: /cockroach/cr-init.sh
+    container_name: roach-init
+    depends_on:
+     - cockroach
+    environment:
+     - COCKROACH_HOSTNAME=roach
+  scraper-grpc:
+    image: scraper-grpc
+    build:
+      context: ../../
+      dockerfile: ./build/servers/grpc/scraper.Dockerfile
+    ports:
+     - "3000:3000"
+  story-grpc:
+    image: story-grpc
+    build:
+      context: ../../
+      dockerfile: ./build/servers/grpc/story.Dockerfile
+    ports:
+     - "3001:3001"
+    environment:
+     - SCRAPER_GRPC_SERVICE_HOSTNAME=scraper-grpc
+     - SCRAPER_GRPC_SERVICE_PORT=3000
+     - STORY_DB_STRING=postgresql://story_service@roach:26257/reader?sslmode=disable
+    depends_on:
+     - cockroach
+     - scraper-grpc
+  story-http:
+    image: story-http
+    build:
+      context: ../../
+      dockerfile: ./build/servers/http/story.Dockerfile
+    ports:
+     - "8081:8080"
+    environment:
+     - STORY_GRPC_SERVICE_HOSTNAME=story-grpc
+     - STORY_GRPC_SERVICE_PORT=3001
+     - STORY_HTTP_SERVICE_PORT=8080
+    depends_on:
+     - story-grpc

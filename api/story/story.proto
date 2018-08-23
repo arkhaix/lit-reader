@@ -1,0 +1,39 @@
+syntax = "proto3";
+
+package story;
+
+import "api/common/status.proto";
+
+service StoryService {
+  // CreateStory returns the story id and metadata for the queried url, scraping it first if necessary.
+  rpc CreateStory (CreateStoryRequest) returns (CreateStoryResponse) {}
+
+  // GetStory returns the metadata for a previously-scraped story.
+  rpc GetStory (GetStoryRequest) returns (GetStoryResponse) {}
+}
+
+message CreateStoryRequest {
+  string url = 1;
+}
+
+message CreateStoryResponse {
+  common.Status status = 1;
+  Story data = 2;
+}
+
+message GetStoryRequest {
+  string id = 1;
+}
+
+message GetStoryResponse {
+  common.Status status = 1;
+  Story data = 2;
+}
+
+message Story {
+  string id = 1;
+  string url = 2;
+  string title = 3;
+  string author = 4;
+  int32 numChapters = 5;
+}
