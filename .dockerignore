@@ -3,6 +3,7 @@
 .gitignore
 *.out
 *.epub
+*.sql
 build
 deployments
 cockroach-data

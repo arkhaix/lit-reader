@@ -26,6 +26,7 @@ services:
     environment:
      - SCRAPER_GRPC_SERVICE_HOSTNAME=scraper-grpc
      - SCRAPER_GRPC_SERVICE_PORT=3000
+     - STORY_DB_STRING=postgresql://story_service@roach:26257/reader?sslmode=disable
     depends_on:
      - cockroach
      - scraper-grpc
