@@ -3,6 +3,7 @@ PROTOC_BIN='protoc'
 PROTOC_HEAD_PARAMS='--proto_path=.'
 PROTOC_TAIL_PARAMS='--go_out=plugins=grpc,paths=source_relative:.'
 PROTO_FILES=(
+  api/chapter/chapter.proto
   api/common/status.proto
   api/scraper/scraper.proto
   api/story/story.proto
