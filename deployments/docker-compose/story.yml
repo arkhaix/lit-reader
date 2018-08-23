@@ -8,7 +8,19 @@ services:
      - "8080:8080"
      - "26257:26257"
     volumes:
-     - "./cockroach-data/roach:/cockroach/cockroach-data"
+     - ./cockroach-data/roach:/cockroach/cockroach-data
+     - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+  cockroach-init:
+    image: cockroach-init
+    build:
+      context: ../../
+      dockerfile: ./build/cockroach-init.Dockerfile
+    entrypoint: /cockroach/cr-init.sh
+    container_name: roach-init
+    depends_on:
+     - cockroach
+    environment:
+     - COCKROACH_HOSTNAME=roach
   scraper-grpc:
     image: scraper-grpc
     build:
