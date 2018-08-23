@@ -35,3 +35,5 @@ spec:
           env:
             - name: SCRAPER_GRPC_SERVICE_HOSTNAME
               value: "scraper-grpc"
+            - name: STORY_DB_STRING
+              value: "postgresql://maxroach@cockroachdb-public:26257/story?sslmode=disable"
