@@ -4,6 +4,6 @@ package common;
 option go_package = "github.com/arkhaix/lit-reader/api/common";
 
 message Status {
-  int32 statusCode = 1;
-  string statusText = 2;
+  int32 code = 1;
+  string text = 2;
 }

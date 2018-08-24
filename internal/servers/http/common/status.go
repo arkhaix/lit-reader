@@ -13,7 +13,7 @@ type Status struct {
 // NewStatusFromProto creates a Status struct from the api/common/status proto message
 func NewStatusFromProto(status *api.Status) Status {
 	return Status{
-		Code: int(status.GetStatusCode()),
-		Text: status.GetStatusText(),
+		Code: int(status.GetCode()),
+		Text: status.GetText(),
 	}
 }

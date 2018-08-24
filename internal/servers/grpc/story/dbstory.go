@@ -5,7 +5,7 @@ import (
 
 	log "github.com/sirupsen/logrus"
 
-	apistory "github.com/arkhaix/lit-reader/api/story"
+	api "github.com/arkhaix/lit-reader/api/story"
 )
 
 func (s *Server) queryStoryByURL(url string) (string, error) {
@@ -22,14 +22,14 @@ func (s *Server) queryStoryByURL(url string) (string, error) {
 	return id, err
 }
 
-func (s *Server) fetchStoryFromDb(id string) (*apistory.Story, error) {
+func (s *Server) fetchStoryFromDb(id string) (*api.Story, error) {
 	row := s.DB.QueryRow("SELECT Url,Title,Author,NumChapters FROM story WHERE Id = $1", id)
 
 	var url, title, author string
 	var numChapters int
 	err := row.Scan(&url, &title, &author, &numChapters)
 
-	return &apistory.Story{
+	return &api.Story{
 		Id:          id,
 		Url:         url,
 		Title:       title,
@@ -38,7 +38,7 @@ func (s *Server) fetchStoryFromDb(id string) (*apistory.Story, error) {
 	}, err
 }
 
-func (s *Server) saveStoryToDb(story *apistory.Story) (string, error) {
+func (s *Server) saveStoryToDb(story *api.Story) (string, error) {
 	story.Url = fixURL(story.Url)
 
 	id := story.GetId()

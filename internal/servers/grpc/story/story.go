@@ -36,7 +36,7 @@ func (s *Server) CreateStory(ctx context.Context, req *apistory.CreateStoryReque
 		response.Data = getResponse.Data
 	} else {
 		response = s.fetchStoryFromScraper(url)
-		if response.Status.GetStatusCode() == 200 && response.Data != nil {
+		if response.Status.GetCode() == 200 && response.Data != nil {
 			id, err = s.saveStoryToDb(response.Data)
 			if err == nil {
 				response.Data.Id = id

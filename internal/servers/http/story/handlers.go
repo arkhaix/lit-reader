@@ -49,7 +49,7 @@ func PostStory(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	log.Debugf("RpcGood: PostStory(%s): %d", storyURL, result.GetStatus().GetStatusCode())
+	log.Debugf("RpcGood: PostStory(%s): %d", storyURL, result.GetStatus().GetCode())
 
 	// Output
 	response := newPostStoryResponse(result)
@@ -77,7 +77,7 @@ func GetStory(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	log.Debugf("RpcGood: GetStory(%s): %d", id, result.GetStatus().GetStatusCode())
+	log.Debugf("RpcGood: GetStory(%s): %d", id, result.GetStatus().GetCode())
 
 	// Output
 	response := newGetStoryResponse(result)
