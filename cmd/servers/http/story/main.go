@@ -29,7 +29,7 @@ func main() {
 		DefaultGRPCHostName: "localhost",
 
 		EnvVarGRPCPort:  "STORY_GRPC_SERVICE_PORT",
-		DefaultGRPCPort: "3001",
+		DefaultGRPCPort: "3000",
 	}
 
 	// Routes

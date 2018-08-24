@@ -20,7 +20,7 @@ import (
 
 func main() {
 	// Config
-	listenPort := common.ConfigVar("3001", "STORY_GRPC_SERVICE_PORT", nil)
+	listenPort := common.ConfigVar("3000", "STORY_GRPC_SERVICE_PORT", nil)
 	scraperHost := common.ConfigVar("localhost", "SCRAPER_GRPC_SERVICE_HOSTNAME", nil)
 	scraperPort := common.ConfigVar("3000", "SCRAPER_GRPC_SERVICE_PORT", nil)
 	dbString := common.ConfigVar("postgresql://story_service@roach:26257/reader?sslmode=disable", "STORY_DB_STRING", nil)

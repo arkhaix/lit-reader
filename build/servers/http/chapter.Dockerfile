@@ -12,5 +12,5 @@ FROM alpine
 RUN apk add --no-cache ca-certificates 
 WORKDIR /app
 COPY --from=builder /go/src/github.com/arkhaix/lit-reader/chapter-http /app/
-EXPOSE 8082
+EXPOSE 8080
 ENTRYPOINT ["/app/chapter-http"]

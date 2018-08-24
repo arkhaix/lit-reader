@@ -12,5 +12,5 @@ FROM alpine
 RUN apk add --no-cache ca-certificates 
 WORKDIR /app
 COPY --from=builder /go/src/github.com/arkhaix/lit-reader/story-grpc /app/
-EXPOSE 3001
+EXPOSE 3000
 ENTRYPOINT ["/app/story-grpc"]

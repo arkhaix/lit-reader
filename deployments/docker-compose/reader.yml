@@ -26,15 +26,11 @@ services:
     build:
       context: ../../
       dockerfile: ./build/servers/grpc/scraper.Dockerfile
-    ports:
-     - "3000:3000"
   story-grpc:
     image: story-grpc
     build:
       context: ../../
       dockerfile: ./build/servers/grpc/story.Dockerfile
-    ports:
-     - "3001:3001"
     environment:
      - SCRAPER_GRPC_SERVICE_HOSTNAME=scraper-grpc
      - SCRAPER_GRPC_SERVICE_PORT=3000
@@ -51,7 +47,7 @@ services:
      - "8081:8080"
     environment:
      - STORY_GRPC_SERVICE_HOSTNAME=story-grpc
-     - STORY_GRPC_SERVICE_PORT=3001
+     - STORY_GRPC_SERVICE_PORT=3000
      - STORY_HTTP_SERVICE_PORT=8080
     depends_on:
      - story-grpc
@@ -60,13 +56,11 @@ services:
     build:
       context: ../../
       dockerfile: ./build/servers/grpc/chapter.Dockerfile
-    ports:
-     - "3002:3002"
     environment:
      - SCRAPER_GRPC_SERVICE_HOSTNAME=scraper-grpc
      - SCRAPER_GRPC_SERVICE_PORT=3000
      - STORY_GRPC_SERVICE_HOSTNAME=story-grpc
-     - STORY_GRPC_SERVICE_PORT=3001
+     - STORY_GRPC_SERVICE_PORT=3000
      - STORY_DB_STRING=postgresql://chapter_service@roach:26257/reader?sslmode=disable
     depends_on:
      - cockroach
@@ -81,7 +75,7 @@ services:
      - "8082:8080"
     environment:
      - CHAPTER_GRPC_SERVICE_HOSTNAME=chapter-grpc
-     - CHAPTER_GRPC_SERVICE_PORT=3002
+     - CHAPTER_GRPC_SERVICE_PORT=3000
      - CHAPTER_HTTP_SERVICE_PORT=8080
     depends_on:
      - chapter-grpc
