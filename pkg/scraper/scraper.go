@@ -3,6 +3,8 @@ package scraper
 import (
 	"errors"
 
+	"github.com/microcosm-cc/bluemonday"
+
 	"github.com/arkhaix/lit-reader/common"
 	"github.com/arkhaix/lit-reader/pkg/scraper/sites/archiveofourown"
 	"github.com/arkhaix/lit-reader/pkg/scraper/sites/fictionpress"
@@ -38,7 +40,14 @@ func FetchStoryMetadata(url string) (common.Story, error) {
 	if scraper == nil {
 		return common.Story{}, errors.New("Unsupported URL")
 	}
-	return scraper.FetchStoryMetadata(url)
+
+	story, err := scraper.FetchStoryMetadata(url)
+
+	// Sanitize all properties pulled directly from the page
+	story.Author = bluemonday.UGCPolicy().Sanitize(story.Author)
+	story.Title = bluemonday.UGCPolicy().Sanitize(story.Title)
+
+	return story, err
 }
 
 // FetchChapter fetches one chapter of a story
@@ -48,7 +57,13 @@ func FetchChapter(storyURL string, index int) (common.Chapter, error) {
 		return common.Chapter{}, errors.New("Unsupported URL")
 	}
 
-	return scraper.FetchChapter(storyURL, index)
+	chapter, err := scraper.FetchChapter(storyURL, index)
+
+	// Sanitize all properties pulled directly from the page
+	chapter.Title = bluemonday.UGCPolicy().Sanitize(chapter.Title)
+	chapter.HTML = bluemonday.UGCPolicy().Sanitize(chapter.HTML)
+
+	return chapter, err
 }
 
 func getScraper(url string) common.Scraper {
