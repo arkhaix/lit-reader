@@ -12,6 +12,8 @@
 *.out
 
 # Binaries from cmd/
+/chapter-grpc
+/chapter-http
 /scrape
 /scraper-grpc
 /storytest
