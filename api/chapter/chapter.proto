@@ -1,0 +1,29 @@
+syntax = "proto3";
+
+package chapter;
+
+import "api/common/status.proto";
+
+service ChapterService {
+  // GetChapter returns the chapter data for the requested chapter,
+  // scraping it first if necessary.
+  rpc GetChapter (GetChapterRequest) returns (GetChapterResponse) {}
+}
+
+message GetChapterRequest {
+  string storyId = 1;
+  int32 chapterId = 2;
+}
+
+message GetChapterResponse {
+  common.Status status = 1;
+  Chapter data = 2;
+}
+
+message Chapter {
+  string storyId = 1;
+  int32 chapterId = 2;
+  string url = 3;
+  string title = 4;
+  string html = 5;
+}

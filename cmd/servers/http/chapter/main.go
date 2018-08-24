@@ -8,27 +8,27 @@ import (
 	"github.com/go-chi/chi"
 	"github.com/go-chi/render"
 
-	api "github.com/arkhaix/lit-reader/api/story"
+	api "github.com/arkhaix/lit-reader/api/chapter"
 
-	"github.com/arkhaix/lit-reader/internal/servers/http/story"
+	"github.com/arkhaix/lit-reader/internal/servers/http/chapter"
 	"github.com/arkhaix/lit-reader/internal/servers/httphost"
 )
 
 func configHandlers(conn *grpc.ClientConn) {
-	story.Client = api.NewStoryServiceClient(conn)
-	story.Timeout = 10 * time.Second
+	chapter.Client = api.NewChapterServiceClient(conn)
+	chapter.Timeout = 10 * time.Second
 }
 
 func main() {
 	// Config
 	params := httphost.Params{
-		EnvVarListenPort:  "STORY_HTTP_SERVICE_PORT",
+		EnvVarListenPort:  "CHAPTER_HTTP_SERVICE_PORT",
 		DefaultListenPort: "8080",
 
-		EnvVarGRPCHostName:  "STORY_GRPC_SERVICE_HOSTNAME",
+		EnvVarGRPCHostName:  "CHAPTER_GRPC_SERVICE_HOSTNAME",
 		DefaultGRPCHostName: "localhost",
 
-		EnvVarGRPCPort:  "STORY_GRPC_SERVICE_PORT",
+		EnvVarGRPCPort:  "CHAPTER_GRPC_SERVICE_PORT",
 		DefaultGRPCPort: "3000",
 	}
 
@@ -36,9 +36,8 @@ func main() {
 	r := chi.NewRouter()
 	r.Use(render.SetContentType(render.ContentTypeJSON))
 
-	r.Route("/story", func(r chi.Router) {
-		r.Get("/{storyID}", story.GetStory)
-		r.Post("/", story.PostStory)
+	r.Route("/story/{storyID}/chapter", func(r chi.Router) {
+		r.Get("/{chapterID}", chapter.GetChapter)
 	})
 
 	// Run

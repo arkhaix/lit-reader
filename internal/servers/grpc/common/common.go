@@ -20,22 +20,22 @@ var (
 
 func init() {
 	StatusOk = &apicommon.Status{
-		StatusCode: 200,
-		StatusText: "Ok",
+		Code: 200,
+		Text: "Ok",
 	}
 
 	StatusBadRequest = &apicommon.Status{
-		StatusCode: 400,
-		StatusText: "Bad request",
+		Code: 400,
+		Text: "Bad request",
 	}
 
 	StatusNotFound = &apicommon.Status{
-		StatusCode: 404,
-		StatusText: "Resource not found",
+		Code: 404,
+		Text: "Resource not found",
 	}
 
 	StatusInternalServerError = &apicommon.Status{
-		StatusCode: 500,
-		StatusText: "Internal server error",
+		Code: 500,
+		Text: "Internal server error",
 	}
 }
