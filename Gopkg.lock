@@ -111,19 +111,37 @@
   version = "v1.0.0"
 
 [[projects]]
-  digest = "1:14834e04828af9e53954f1be45ea7f190c4c26d746009c2ab07c5828595539e9"
+  branch = "master"
+  digest = "1:57ac2ff0eb324c21a9a6691eb36a1a26d6dcdae0ddf657172c60bc10264d28c5"
   name = "github.com/golang/protobuf"
   packages = [
+    "jsonpb",
     "proto",
     "protoc-gen-go/descriptor",
     "ptypes",
     "ptypes/any",
     "ptypes/duration",
+    "ptypes/struct",
     "ptypes/timestamp",
   ]
   pruneopts = "UT"
-  revision = "b4deda0973fb4c70b50d226b1af49f3da59f5265"
-  version = "v1.1.0"
+  revision = "b27b920f9e71b439b873b17bf99f56467623814a"
+
+[[projects]]
+  digest = "1:fd3e59e9cc37e30d45a326b0c0662d64b215da64eec353f317e24d6f900f365b"
+  name = "github.com/grpc-ecosystem/go-grpc-middleware"
+  packages = [
+    ".",
+    "logging",
+    "logging/logrus",
+    "logging/logrus/ctxlogrus",
+    "recovery",
+    "tags",
+    "tags/logrus",
+  ]
+  pruneopts = "UT"
+  revision = "c250d6563d4d4c20252cd865923440e829844f4e"
+  version = "v1.0.0"
 
 [[projects]]
   branch = "master"
@@ -358,6 +376,10 @@
     "github.com/go-chi/render",
     "github.com/gocolly/colly",
     "github.com/golang/protobuf/proto",
+    "github.com/grpc-ecosystem/go-grpc-middleware",
+    "github.com/grpc-ecosystem/go-grpc-middleware/logging",
+    "github.com/grpc-ecosystem/go-grpc-middleware/logging/logrus",
+    "github.com/grpc-ecosystem/go-grpc-middleware/recovery",
     "github.com/hashicorp/golang-lru",
     "github.com/lib/pq",
     "github.com/microcosm-cc/bluemonday",
