@@ -1,5 +1,10 @@
 import React, { Component } from 'react';
+
+import Button from '@material-ui/core/Button';
+import Paper from '@material-ui/core/Paper';
+
 import Chapter from './Chapter';
+
 import './index.css';
 
 class Story extends Component {
@@ -9,7 +14,7 @@ class Story extends Component {
     this.state = {
       Id: null,
       Url: "http://example.com",
-      Author: "Nobody",
+      Author: "Author",
       Title: "Select a story",
       NumChapters: 0,
     };
@@ -18,12 +23,18 @@ class Story extends Component {
   render() {
     return (
       <div className="Story">
-        <header className="Story-header">
-          <h1 className="Story-title">{this.state.Title}</h1>
-          <h3 className="Story-author">by {this.state.Author}</h3>
-        </header>
-        <button onClick={() => this.fetchStory('wanderinginn.com')}>Fetch Story</button>
-        <div className="Story-chapter"><Chapter storyId={this.state.Id} chapterId={0}/></div>
+        <Paper elevation={5}>
+          <header className="Story-header">
+              <h1 className="Story-title">{this.state.Title}</h1>
+              <h3 className="Story-author">by {this.state.Author}</h3>
+          </header>
+        </Paper>
+        <div className="debug">
+          <Button variant="outlined" color="inherit" onClick={() => this.fetchStory('wanderinginn.com')}>
+            Fetch Story
+          </Button>
+        </div>
+        <Chapter storyId={this.state.Id} chapterId={0}/>
       </div>
     );
   }
