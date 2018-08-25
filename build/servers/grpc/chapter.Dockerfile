@@ -1,5 +1,5 @@
 # Build stage
-FROM golang:1.10 AS builder
+FROM golang:1.11rc2 AS builder
 
 ENV GOPATH /go
 ADD . /go/src/github.com/arkhaix/lit-reader
