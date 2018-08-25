@@ -4,5 +4,6 @@
 *.out
 *.epub
 build
-deployments
 cockroach-data
+deployments
+web
