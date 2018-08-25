@@ -66,6 +66,14 @@
   version = "v3.3.2"
 
 [[projects]]
+  digest = "1:dfa416a1bb8139f30832543340f972f65c0db9932034cb6a1b42c5ac615a3fb8"
+  name = "github.com/go-chi/cors"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "dba6525398619dead495962a916728e7ee2ca322"
+  version = "v1.0.0"
+
+[[projects]]
   digest = "1:bcd7c6fe3da916b9887cb91340bf52feae66b0064bb40a292040208326c86505"
   name = "github.com/go-chi/docgen"
   packages = ["."]
@@ -354,6 +362,7 @@
     "github.com/bmaupin/go-epub",
     "github.com/davecgh/go-spew/spew",
     "github.com/go-chi/chi",
+    "github.com/go-chi/cors",
     "github.com/go-chi/docgen",
     "github.com/go-chi/render",
     "github.com/gocolly/colly",
