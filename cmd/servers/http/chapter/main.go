@@ -36,7 +36,7 @@ func main() {
 	r := chi.NewRouter()
 	r.Use(render.SetContentType(render.ContentTypeJSON))
 
-	r.Route("/story/{storyID}/chapter", func(r chi.Router) {
+	r.Route("/chapter/{storyID}", func(r chi.Router) {
 		r.Get("/{chapterID}", chapter.GetChapter)
 	})
 
