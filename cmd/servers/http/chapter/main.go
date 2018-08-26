@@ -30,7 +30,7 @@ func (*hostApp) GetParams() *httphost.Params {
 }
 
 func (*hostApp) DefineRoutes(r *chi.Mux) {
-	r.Route("/story/{storyId}/chapter", func(r chi.Router) {
+	r.Route("/chapter/{storyId}", func(r chi.Router) {
 		r.Get("/{chapterId}", chapter.GetChapter)
 	})
 }
