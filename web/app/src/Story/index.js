@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 
 import Button from '@material-ui/core/Button';
 import Paper from '@material-ui/core/Paper';
+import TextField from '@material-ui/core/TextField';
 
 import Chapter from './Chapter';
 
@@ -17,6 +18,8 @@ class Story extends Component {
       Author: "Author",
       Title: "Select a story",
       NumChapters: 0,
+
+      DesiredUrl: "",
     };
   }
 
@@ -30,13 +33,35 @@ class Story extends Component {
           </header>
         </Paper>
         <div className="debug">
-          <Button variant="outlined" color="inherit" onClick={() => this.fetchStory('wanderinginn.com')}>
-            Fetch Story
-          </Button>
+          <form onSubmit={this.handleSubmit}>
+            <TextField
+              label="Story url"
+              placeholder="wanderinginn.com"
+              margin="normal"
+              name="DesiredUrl"
+              value={this.state.DesiredUrl}
+              onChange={this.handleChange}
+            />
+            <div className="debug-fetch">
+            <Button variant="outlined" color="inherit" size="small" type="submit" value="submit">
+              Fetch Story
+            </Button>
+            </div>
+          </form>
         </div>
         <Chapter storyId={this.state.Id} chapterId={0}/>
       </div>
     );
+  }
+
+  handleChange = (event) => {
+    const { target: { name, value } } = event;
+    this.setState({ [name]: value });
+  }
+
+  handleSubmit = (event) => {
+    event.preventDefault();
+    this.fetchStory(this.state.DesiredUrl);
   }
 
   fetchStory(url) {
@@ -51,13 +76,17 @@ class Story extends Component {
       .then(res => this.updateStateFromStory(res));
   }
 
-  updateStateFromStory(story) {
+  updateStateFromStory(storyResponse) {
+    if (storyResponse.Status.Code !== 200) {
+      console.log("Bad story");
+      return;
+    }
     this.setState({
-      Id: story.Id,
-      Url: story.Url,
-      Author: story.Author,
-      Title: story.Title,
-      NumChapters: story.NumChapters,
+      Id: storyResponse.Id,
+      Url: storyResponse.Url,
+      Author: storyResponse.Author,
+      Title: storyResponse.Title,
+      NumChapters: storyResponse.NumChapters,
     });
   }
 }
