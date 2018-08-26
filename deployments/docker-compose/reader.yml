@@ -14,7 +14,7 @@ services:
     image: story-http
     build:
       context: ../../
-      dockerfile: ./build/story.Dockerfile
+      dockerfile: ./build/story-http.Dockerfile
     ports:
       - "8081:8080"
     environment:
@@ -30,7 +30,7 @@ services:
     image: chapter-http
     build:
       context: ../../
-      dockerfile: ./build/chapter.Dockerfile
+      dockerfile: ./build/chapter-http.Dockerfile
     ports:
       - "8082:8080"
     environment:
@@ -46,7 +46,7 @@ services:
     image: story-grpc
     build:
       context: ../../
-      dockerfile: ./build/story.Dockerfile
+      dockerfile: ./build/story-grpc.Dockerfile
     environment:
       - SCRAPER_GRPC_SERVICE_HOSTNAME=scraper-grpc
       - SCRAPER_GRPC_SERVICE_PORT=3000
@@ -58,7 +58,7 @@ services:
     image: chapter-grpc
     build:
       context: ../../
-      dockerfile: ./build/chapter.Dockerfile
+      dockerfile: ./build/chapter-grpc.Dockerfile
     environment:
       - SCRAPER_GRPC_SERVICE_HOSTNAME=scraper-grpc
       - SCRAPER_GRPC_SERVICE_PORT=3000
@@ -73,7 +73,7 @@ services:
     image: scraper-grpc
     build:
       context: ../../
-      dockerfile: ./build/scraper.Dockerfile
+      dockerfile: ./build/scraper-grpc.Dockerfile
   cockroach:
     image: cockroachdb/cockroach:v2.0.5
     command: start --insecure

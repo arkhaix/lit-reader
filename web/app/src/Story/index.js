@@ -65,7 +65,7 @@ class Story extends Component {
   }
 
   fetchStory(url) {
-    fetch('http://localhost:8081/story', {
+    fetch('/story', {
       method: 'post',
       headers: {
         'Accept': 'application/json, text/plain, */*',
@@ -81,6 +81,8 @@ class Story extends Component {
       console.log("Bad story");
       return;
     }
+    console.log('setting new story state:');
+    console.log(storyResponse);
     this.setState({
       Id: storyResponse.Id,
       Url: storyResponse.Url,
