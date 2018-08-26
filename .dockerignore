@@ -7,4 +7,3 @@ docker-all.sh
 build
 cockroach-data
 deployments
-web
