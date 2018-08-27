@@ -14,7 +14,6 @@ class Chapter extends Component {
   }
 
   render() {
-    console.log('render');
     this.updateChapter();
     return (
       <div className="Chapter">
@@ -28,21 +27,16 @@ class Chapter extends Component {
   }
 
   updateChapter() {
-    console.log('in updateChapter with props:')
-    console.log(this.props)
     if (this.props.storyId !== this.state.StoryId || this.props.chapterId !== this.state.ChapterId) {
       this.fetchChapter()
     }
   }
 
   fetchChapter() {
-    console.log('in fetchChapter');
     if(!this.props.storyId || this.props.chapterId === null || this.props.chapterId < 0) {
-      console.log('bad props');
       return
     }
-    console.log('props ok. fetching');
-    fetch('/chapter/' + this.props.storyId + '/' + this.props.chapterId, {
+    fetch(this.props.readerApi + '/chapter/' + this.props.storyId + '/' + this.props.chapterId, {
       method: 'get',
       headers: {
         'Accept': 'application/json, text/plain, */*',
@@ -53,8 +47,6 @@ class Chapter extends Component {
   }
 
   updateStateFromChapter(chapter) {
-    console.log('updateStateFromChapter:');
-    console.log(chapter);
     this.setState({
       StoryId: chapter.StoryId,
       ChapterId: chapter.ChapterId,

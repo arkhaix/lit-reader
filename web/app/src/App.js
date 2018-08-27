@@ -7,7 +7,7 @@ import './App.css';
 class App extends Component {
   render() {
     return (
-      <Story />
+      <Story readerApi={process.env.REACT_APP_READER_API}/>
     );
   }
 }

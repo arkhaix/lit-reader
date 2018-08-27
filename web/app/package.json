@@ -16,6 +16,6 @@
     "eject": "react-scripts eject"
   },
   "devDependencies": {
-    "@types/react": "^16.4.11"
+    "@types/react": "^16.4.12"
   }
 }

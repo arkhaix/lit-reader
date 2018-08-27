@@ -49,7 +49,7 @@ class Story extends Component {
             </div>
           </form>
         </div>
-        <Chapter storyId={this.state.Id} chapterId={0}/>
+        <Chapter readerApi={this.props.readerApi} storyId={this.state.Id} chapterId={0}/>
       </div>
     );
   }
@@ -65,7 +65,7 @@ class Story extends Component {
   }
 
   fetchStory(url) {
-    fetch('/story', {
+    fetch(this.props.readerApi + '/story', {
       method: 'post',
       headers: {
         'Accept': 'application/json, text/plain, */*',
