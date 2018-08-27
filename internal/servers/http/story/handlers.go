@@ -60,7 +60,7 @@ func PostStory(w http.ResponseWriter, r *http.Request) {
 // GetStory returns the metadata for a previously-scraped story.
 func GetStory(w http.ResponseWriter, r *http.Request) {
 	// Parse params
-	id := chi.URLParam(r, "storyID")
+	id := chi.URLParam(r, "storyId")
 	log.Debugf("In: GetStory(%s)", id)
 
 	// RPC
@@ -86,7 +86,7 @@ func GetStory(w http.ResponseWriter, r *http.Request) {
 }
 
 type postStoryRequest struct {
-	URL string
+	URL string `json: "Url"`
 }
 
 func (sr *postStoryRequest) Bind(r *http.Request) error {
@@ -95,11 +95,11 @@ func (sr *postStoryRequest) Bind(r *http.Request) error {
 
 type storyResponse struct {
 	Status      httpcommon.Status
-	ID          string
-	URL         string
-	Title       string
-	Author      string
-	NumChapters int
+	ID          string `json:"Id"`
+	URL         string `json:"Url"`
+	Title       string `json:"Title"`
+	Author      string `json:"Author"`
+	NumChapters int    `json:"NumChapters"`
 }
 
 func (storyResponse) Render(http.ResponseWriter, *http.Request) error {

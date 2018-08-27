@@ -1,28 +1,87 @@
 version: '3'
 services:
-  reverse-proxy:
-    image: traefik
-    command: --api --docker
-    restart: always
-    container_name: traefik
-    ports:
-      - 80:80
-      - 8080:8080
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
+  reader:
+    image: reader
+    build:
+      context: ../../
+      dockerfile: ./build/reader.Dockerfile
+    labels:
+      - "traefik.frontend.rule=Host:${READER_HOST}"
+      - "traefik.port=${READER_PORT}"
+      - "traefik.enable=true"
+  story-http:
+    image: story-http
+    build:
+      context: ../../
+      dockerfile: ./build/story-http.Dockerfile
+    environment:
+      - STORY_GRPC_SERVICE_HOSTNAME=story-grpc
+      - STORY_GRPC_SERVICE_PORT=3000
+      - STORY_HTTP_SERVICE_PORT=8080
+    depends_on:
+      - story-grpc
+    labels:
+      - "traefik.frontend.rule=Host:${READER_HOST};PathPrefix:/story"
+      - "traefik.port=8080"
+      - "traefik.enable=true"
+  chapter-http:
+    image: chapter-http
+    build:
+      context: ../../
+      dockerfile: ./build/chapter-http.Dockerfile
+    environment:
+      - CHAPTER_GRPC_SERVICE_HOSTNAME=chapter-grpc
+      - CHAPTER_GRPC_SERVICE_PORT=3000
+      - CHAPTER_HTTP_SERVICE_PORT=8080
+    depends_on:
+      - chapter-grpc
+    labels:
+      - "traefik.frontend.rule=Host:${READER_HOST};PathPrefix:/chapter"
+      - "traefik.port=8080"
+      - "traefik.enable=true"
+  story-grpc:
+    image: story-grpc
+    build:
+      context: ../../
+      dockerfile: ./build/story-grpc.Dockerfile
+    environment:
+      - SCRAPER_GRPC_SERVICE_HOSTNAME=scraper-grpc
+      - SCRAPER_GRPC_SERVICE_PORT=3000
+      - STORY_DB_STRING=postgresql://story_service@roach:26257/reader?sslmode=disable
+    depends_on:
+      - cockroach
+      - scraper-grpc
+  chapter-grpc:
+    image: chapter-grpc
+    build:
+      context: ../../
+      dockerfile: ./build/chapter-grpc.Dockerfile
+    environment:
+      - SCRAPER_GRPC_SERVICE_HOSTNAME=scraper-grpc
+      - SCRAPER_GRPC_SERVICE_PORT=3000
+      - STORY_GRPC_SERVICE_HOSTNAME=story-grpc
+      - STORY_GRPC_SERVICE_PORT=3000
+      - STORY_DB_STRING=postgresql://chapter_service@roach:26257/reader?sslmode=disable
+    depends_on:
+      - cockroach
+      - scraper-grpc
+      - story-grpc
+  scraper-grpc:
+    image: scraper-grpc
+    build:
+      context: ../../
+      dockerfile: ./build/scraper-grpc.Dockerfile
   cockroach:
     image: cockroachdb/cockroach:v2.0.5
     command: start --insecure
     container_name: roach
-    ports:
-      - "8079:8080"
-      - "26257:26257"
     volumes:
       - ./cockroach-data/roach:/cockroach/cockroach-data
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
     labels:
       - "traefik.backend=cockroach"
-      - "traefik.frontend.rule=Host:cockroach.dev.local"
+      - "traefik.frontend.rule=Host:${COCKROACH_HOST}"
+      - "traefik.port=${COCKROACH_PORT}"
       - "traefik.enable=true"
   cockroach-init:
     image: cockroach-init
@@ -35,67 +94,13 @@ services:
       - cockroach
     environment:
       - COCKROACH_HOSTNAME=roach
-  scraper-grpc:
-    image: scraper-grpc
-    build:
-      context: ../../
-      dockerfile: ./build/servers/grpc/scraper.Dockerfile
-  story-grpc:
-    image: story-grpc
-    build:
-      context: ../../
-      dockerfile: ./build/servers/grpc/story.Dockerfile
-    environment:
-      - SCRAPER_GRPC_SERVICE_HOSTNAME=scraper-grpc
-      - SCRAPER_GRPC_SERVICE_PORT=3000
-      - STORY_DB_STRING=postgresql://story_service@roach:26257/reader?sslmode=disable
-    depends_on:
-      - cockroach
-      - scraper-grpc
-  story-http:
-    image: story-http
-    build:
-      context: ../../
-      dockerfile: ./build/servers/http/story.Dockerfile
+  reverse-proxy:
+    image: traefik
+    command: --api --docker
+    restart: always
+    container_name: traefik
     ports:
-      - "8081:8080"
-    environment:
-      - STORY_GRPC_SERVICE_HOSTNAME=story-grpc
-      - STORY_GRPC_SERVICE_PORT=3000
-      - STORY_HTTP_SERVICE_PORT=8080
-    depends_on:
-      - story-grpc
-    labels:
-      - "traefik.frontend.rule=Host:reader.dev.local;PathPrefix:/story"
-      - "traefik.enable=true"
-  chapter-grpc:
-    image: chapter-grpc
-    build:
-      context: ../../
-      dockerfile: ./build/servers/grpc/chapter.Dockerfile
-    environment:
-      - SCRAPER_GRPC_SERVICE_HOSTNAME=scraper-grpc
-      - SCRAPER_GRPC_SERVICE_PORT=3000
-      - STORY_GRPC_SERVICE_HOSTNAME=story-grpc
-      - STORY_GRPC_SERVICE_PORT=3000
-      - STORY_DB_STRING=postgresql://chapter_service@roach:26257/reader?sslmode=disable
-    depends_on:
-      - cockroach
-      - scraper-grpc
-      - story-grpc
-  chapter-http:
-    image: chapter-http
-    build:
-      context: ../../
-      dockerfile: ./build/servers/http/chapter.Dockerfile
-    ports:
-      - "8082:8080"
-    environment:
-      - CHAPTER_GRPC_SERVICE_HOSTNAME=chapter-grpc
-      - CHAPTER_GRPC_SERVICE_PORT=3000
-      - CHAPTER_HTTP_SERVICE_PORT=8080
-    depends_on:
-      - chapter-grpc
-    labels:
-      - "traefik.frontend.rule=Host:reader.dev.local;PathPrefix:/chapter"
-      - "traefik.enable=true"
+      - 80:80
+      - 8080:8080
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock

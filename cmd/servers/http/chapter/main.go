@@ -6,7 +6,6 @@ import (
 	"google.golang.org/grpc"
 
 	"github.com/go-chi/chi"
-	"github.com/go-chi/render"
 
 	api "github.com/arkhaix/lit-reader/api/chapter"
 
@@ -14,14 +13,11 @@ import (
 	"github.com/arkhaix/lit-reader/internal/servers/httphost"
 )
 
-func configHandlers(conn *grpc.ClientConn) {
-	chapter.Client = api.NewChapterServiceClient(conn)
-	chapter.Timeout = 10 * time.Second
-}
+// hostApp implements httphost.HostApp
+type hostApp struct{}
 
-func main() {
-	// Config
-	params := httphost.Params{
+func (*hostApp) GetParams() *httphost.Params {
+	return &httphost.Params{
 		EnvVarListenPort:  "CHAPTER_HTTP_SERVICE_PORT",
 		DefaultListenPort: "8080",
 
@@ -31,15 +27,20 @@ func main() {
 		EnvVarGRPCPort:  "CHAPTER_GRPC_SERVICE_PORT",
 		DefaultGRPCPort: "3000",
 	}
+}
 
-	// Routes
-	r := chi.NewRouter()
-	r.Use(render.SetContentType(render.ContentTypeJSON))
-
-	r.Route("/chapter/{storyID}", func(r chi.Router) {
-		r.Get("/{chapterID}", chapter.GetChapter)
+func (*hostApp) DefineRoutes(r *chi.Mux) {
+	r.Route("/chapter/{storyId}", func(r chi.Router) {
+		r.Get("/{chapterId}", chapter.GetChapter)
 	})
+}
 
-	// Run
-	httphost.Host(params, r, configHandlers)
+func (*hostApp) ConfigureHandlers(conn *grpc.ClientConn) {
+	chapter.Client = api.NewChapterServiceClient(conn)
+	chapter.Timeout = 10 * time.Second
+}
+
+func main() {
+	app := &hostApp{}
+	httphost.Host(app)
 }

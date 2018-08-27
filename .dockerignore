@@ -5,5 +5,5 @@
 *.epub
 docker-all.sh
 build
-deployments
 cockroach-data
+deployments

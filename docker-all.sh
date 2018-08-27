@@ -8,6 +8,7 @@ docker build -t chapter-http -f ./build/chapter-http.Dockerfile . &
 docker build -t scraper-grpc -f ./build/scraper-grpc.Dockerfile . &
 docker build -t story-grpc -f ./build/story-grpc.Dockerfile . &
 docker build -t story-http -f ./build/story-http.Dockerfile . &
+docker build -t reader -f ./build/reader.Dockerfile . &
 wait $(jobs -p)
 
 while getopts "cg" o; do
@@ -20,6 +21,7 @@ while getopts "cg" o; do
       docker tag scraper-grpc docker-compose_scraper-grpc &
       docker tag story-grpc docker-compose_story-grpc &
       docker tag story-http docker-compose_story-http &
+      docker tag reader docker-compose_reader &
       wait $(jobs -p)
       echo 'finished tagging for docker-compose'
       ;;
@@ -31,6 +33,7 @@ while getopts "cg" o; do
       docker tag scraper-grpc gcr.io/arkhaix-lit-reader/scraper-grpc &
       docker tag story-grpc gcr.io/arkhaix-lit-reader/story-grpc &
       docker tag story-http gcr.io/arkhaix-lit-reader/story-http &
+      docker tag reader gcr.io/arkhaix-lit-reader/reader &
       wait $(jobs -p)
       echo 'finished tagging for gke'
 
@@ -40,6 +43,7 @@ while getopts "cg" o; do
       docker push gcr.io/arkhaix-lit-reader/scraper-grpc &
       docker push gcr.io/arkhaix-lit-reader/story-grpc &
       docker push gcr.io/arkhaix-lit-reader/story-http &
+      docker push gcr.io/arkhaix-lit-reader/reader &
       wait $(jobs -p)
       echo 'finished pushing to gke'
       ;;
