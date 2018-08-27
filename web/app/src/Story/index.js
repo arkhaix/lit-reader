@@ -41,6 +41,7 @@ class Story extends Component {
     const { classes } = this.props;
     return (
       <div className="Story">
+        <div ref={node => this.storyTopRef = node} />
         <Paper elevation={5}>
           <header className="Story-header">
               <h1 className="Story-title">{this.state.Title}</h1>
@@ -124,7 +125,7 @@ class Story extends Component {
       NumChapters: storyResponse.NumChapters,
       CurrentChapter: 0,
     });
-    window.scrollTo(0, 0);
+    this.storyTopRef.scrollIntoView();
   }
 
   firstButtonEnabled() {
@@ -144,21 +145,25 @@ class Story extends Component {
     this.setState((prevState, props) => ({
       CurrentChapter: 0
     }));
+    this.storyTopRef.scrollIntoView();
   }
   lastChapter() {
     this.setState((prevState, props) => ({
       CurrentChapter: prevState.NumChapters - 1
     }));
+    this.storyTopRef.scrollIntoView();
   }
   prevChapter() {
     this.setState((prevState, props) => ({
       CurrentChapter: prevState.CurrentChapter - 1
     }));
+    this.storyTopRef.scrollIntoView();
   }
   nextChapter() {
     this.setState((prevState, props) => ({
       CurrentChapter: prevState.CurrentChapter + 1
     }));
+    this.storyTopRef.scrollIntoView();
   }
 }
 
