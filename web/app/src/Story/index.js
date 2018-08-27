@@ -19,15 +19,6 @@ const styles = theme => ({
   button: {
     margin: theme.spacing.unit,
   },
-  leftIcon: {
-    marginRight: theme.spacing.unit,
-  },
-  rightIcon: {
-    marginLeft: theme.spacing.unit,
-  },
-  iconSmall: {
-    fontSize: 20,
-  },
 });
 
 class Story extends Component {
@@ -74,19 +65,23 @@ class Story extends Component {
           </form>
         </div>
         <Chapter readerApi={this.props.readerApi} storyId={this.state.Id} chapterId={this.state.CurrentChapter}/>
-        <Button variant="contained" disabled={!this.firstButtonEnabled()} size="small" className={classes.button}>
+        <Button variant="contained" size="small" className={classes.button}
+          disabled={!this.firstButtonEnabled()} onClick={() => this.firstChapter()}>
           <FirstPageIcon />
           First
         </Button>
-        <Button variant="contained" disabled={!this.prevButtonEnabled()} size="small" className={classes.button}>
+        <Button variant="contained" size="small" className={classes.button}
+          disabled={!this.prevButtonEnabled()} onClick={() => this.prevChapter()}>
           <ChevronLeftIcon />
           Previous
         </Button>
-        <Button variant="contained" disabled={!this.nextButtonEnabled()} size="small" className={classes.button}>
+        <Button variant="contained" size="small" className={classes.button}
+          disabled={!this.nextButtonEnabled()} onClick={() => this.nextChapter()}>
           Next
           <ChevronRightIcon />
         </Button>
-        <Button variant="contained" disabled={!this.lastButtonEnabled()} size="small" className={classes.button}>
+        <Button variant="contained" size="small" className={classes.button}
+          disabled={!this.lastButtonEnabled()} onClick={() => this.lastChapter()}>
           Last
           <LastPageIcon />
         </Button>
@@ -129,6 +124,7 @@ class Story extends Component {
       NumChapters: storyResponse.NumChapters,
       CurrentChapter: 0,
     });
+    window.scrollTo(0, 0);
   }
 
   firstButtonEnabled() {
@@ -142,6 +138,27 @@ class Story extends Component {
   }
   nextButtonEnabled() {
     return this.lastButtonEnabled();
+  }
+
+  firstChapter() {
+    this.setState((prevState, props) => ({
+      CurrentChapter: 0
+    }));
+  }
+  lastChapter() {
+    this.setState((prevState, props) => ({
+      CurrentChapter: prevState.NumChapters - 1
+    }));
+  }
+  prevChapter() {
+    this.setState((prevState, props) => ({
+      CurrentChapter: prevState.CurrentChapter - 1
+    }));
+  }
+  nextChapter() {
+    this.setState((prevState, props) => ({
+      CurrentChapter: prevState.CurrentChapter + 1
+    }));
   }
 }
 
