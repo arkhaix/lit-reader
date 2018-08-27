@@ -4,6 +4,7 @@
 *.out
 *.epub
 docker-all.sh
+docker-build.sh
 build
 cockroach-data
 deployments
