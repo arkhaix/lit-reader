@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.com/arkhaix/lit-reader.svg?branch=master)](https://travis-ci.com/arkhaix/lit-reader)
+
 # [lit-reader](http://reader.arkhaix.com)
 
 ## A clean interface for reading online literature from multiple sources
