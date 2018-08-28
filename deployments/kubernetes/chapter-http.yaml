@@ -1,13 +1,13 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: story-http
+  name: chapter-http
   labels:
-    app: story-http
+    app: chapter-http
     tier: backend
 spec:
   selector:
-    app: story-http
+    app: chapter-http
     tier: backend
   ports:
     - port: 8080
@@ -17,26 +17,26 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: story-http
+  name: chapter-http
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: story-http
+      app: chapter-http
       tier: backend
   template:
     metadata:
       labels:
-        app: story-http
+        app: chapter-http
         tier: backend
     spec:
       containers:
-        - name: story-http
-          image: gcr.io/arkhaix-lit-reader/story-http
+        - name: chapter-http
+          image: gcr.io/arkhaix-lit-reader/chapter-http
           imagePullPolicy: Always
           ports:
             - name: http
               containerPort: 8080
           env:
-            - name: STORY_GRPC_SERVICE_HOSTNAME
-              value: "story-grpc"
+            - name: CHAPTER_GRPC_SERVICE_HOSTNAME
+              value: "chapter-grpc"

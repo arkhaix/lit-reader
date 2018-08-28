@@ -61,7 +61,7 @@ services:
       - SCRAPER_GRPC_SERVICE_PORT=3000
       - STORY_GRPC_SERVICE_HOSTNAME=story-grpc
       - STORY_GRPC_SERVICE_PORT=3000
-      - STORY_DB_STRING=postgresql://chapter_service@roach:26257/reader?sslmode=disable
+      - CHAPTER_DB_STRING=postgresql://chapter_service@roach:26257/reader?sslmode=disable
     depends_on:
       - cockroach
       - scraper-grpc
