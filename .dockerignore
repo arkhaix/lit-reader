@@ -3,6 +3,8 @@
 .gitignore
 *.out
 *.epub
+docker-all.sh
+docker-build.sh
 build
-deployments
 cockroach-data
+deployments

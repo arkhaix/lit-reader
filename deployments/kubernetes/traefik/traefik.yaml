@@ -1,0 +1,94 @@
+# create Traefik cluster role
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1beta1
+metadata:
+  name: traefik-cluster-role
+rules:
+  - apiGroups:
+      - ""
+    resources:
+      - services
+      - endpoints
+      - secrets
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - extensions
+    resources:
+      - ingresses
+    verbs:
+      - get
+      - list
+      - watch
+---
+# create Traefik service account
+kind: ServiceAccount
+apiVersion: v1
+metadata:
+  name: traefik-service-account
+  namespace: default
+---
+# bind role with service account
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1beta1
+metadata:
+  name: traefik-cluster-role-binding
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: traefik-cluster-role
+subjects:
+- kind: ServiceAccount
+  name: traefik-service-account
+  namespace: default
+---
+# Declare Traefik ingress service
+kind: Service
+apiVersion: v1
+metadata:
+  name: traefik-service
+spec:
+  selector:
+    app: traefik
+    tier: reverse-proxy
+  ports:
+    - port: 80
+      name: http
+    - port: 443
+      name: https
+    - port: 8080
+      name: admin
+  type: LoadBalancer
+  loadBalancerIP: "35.221.232.135"
+
+---
+# declare Traefik deployment
+kind: Deployment
+apiVersion: extensions/v1beta1
+metadata:
+  name: traefik-deployment
+  labels:
+    app: traefik
+    tier: reverse-proxy
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: traefik
+      tier: reverse-proxy
+  template:
+    metadata:
+      labels:
+        app: traefik
+        tier: reverse-proxy
+    spec:
+      serviceAccountName: traefik-service-account
+      terminationGracePeriodSeconds: 60
+      containers:
+      - name: traefik
+        image: "traefik"
+        args:
+        - --api
+        - --kubernetes

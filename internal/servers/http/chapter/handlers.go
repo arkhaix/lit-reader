@@ -29,8 +29,8 @@ var (
 // GetChapter returns the requested chapter, scraping it first if necessary.
 func GetChapter(w http.ResponseWriter, r *http.Request) {
 	// Parse params
-	storyID := chi.URLParam(r, "storyID")
-	chapterIDStr := chi.URLParam(r, "chapterID")
+	storyID := chi.URLParam(r, "storyId")
+	chapterIDStr := chi.URLParam(r, "chapterId")
 	chapterID, err := strconv.Atoi(chapterIDStr)
 	if err != nil {
 		http.Error(w, "Invalid chapter id", http.StatusBadRequest)
@@ -59,22 +59,13 @@ func GetChapter(w http.ResponseWriter, r *http.Request) {
 	render.Render(w, r, response)
 }
 
-type getChapterRequest struct {
-	storyID   string
-	chapterID int
-}
-
-func (sr *getChapterRequest) Bind(r *http.Request) error {
-	return nil
-}
-
 type chapterResponse struct {
-	Status    httpcommon.Status
-	StoryID   string
-	ChapterID int
-	URL       string
-	Title     string
-	HTML      string
+	Status    httpcommon.Status `json:"Status"`
+	StoryID   string            `json:"StoryId"`
+	ChapterID int               `json:"ChapterId"`
+	URL       string            `json:"Url"`
+	Title     string            `json:"Title"`
+	HTML      string            `json:"Html"`
 }
 
 func (chapterResponse) Render(http.ResponseWriter, *http.Request) error {

@@ -6,8 +6,8 @@ import (
 
 // Status is returned with all http responses
 type Status struct {
-	Code int
-	Text string
+	Code int    `json:"Code"`
+	Text string `json:"Text"`
 }
 
 // NewStatusFromProto creates a Status struct from the api/common/status proto message

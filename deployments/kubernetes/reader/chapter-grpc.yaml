@@ -1,0 +1,46 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: chapter-grpc
+  labels:
+    app: chapter-grpc
+    tier: backend
+spec:
+  selector:
+    app: chapter-grpc
+    tier: backend
+  ports:
+    - port: 3000
+      targetPort: 3000
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: chapter-grpc
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: chapter-grpc
+      tier: backend
+  template:
+    metadata:
+      labels:
+        app: chapter-grpc
+        tier: backend
+    spec:
+      containers:
+        - name: chapter-grpc
+          image: gcr.io/arkhaix-lit-reader/chapter-grpc
+          imagePullPolicy: Always
+          ports:
+            - name: grpc
+              containerPort: 3000
+          env:
+            - name: SCRAPER_GRPC_SERVICE_HOSTNAME
+              value: "scraper-grpc"
+            - name: STORY_GRPC_SERVICE_HOSTNAME
+              value: "story-grpc"
+            - name: CHAPTER_DB_STRING
+              value: "postgresql://chapter_service@cockroachdb-public:26257/reader?sslmode=disable"

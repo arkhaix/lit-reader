@@ -1,0 +1,42 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: chapter-http
+  labels:
+    app: chapter-http
+    tier: backend
+spec:
+  selector:
+    app: chapter-http
+    tier: backend
+  ports:
+    - port: 8080
+      targetPort: 8080
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: chapter-http
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: chapter-http
+      tier: backend
+  template:
+    metadata:
+      labels:
+        app: chapter-http
+        tier: backend
+    spec:
+      containers:
+        - name: chapter-http
+          image: gcr.io/arkhaix-lit-reader/chapter-http
+          imagePullPolicy: Always
+          ports:
+            - name: http
+              containerPort: 8080
+          env:
+            - name: CHAPTER_GRPC_SERVICE_HOSTNAME
+              value: "chapter-grpc"
