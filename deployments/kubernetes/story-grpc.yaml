@@ -14,15 +14,16 @@ spec:
       targetPort: 3000
   type: ClusterIP
 ---
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: story-grpc
-  labels:
-    app: story-grpc
-    tier: backend
 spec:
-  replicas: 3
+  replicas: 1
+  selector:
+    matchLabels:
+      app: story-grpc
+      tier: backend
   template:
     metadata:
       labels:
@@ -40,4 +41,4 @@ spec:
             - name: SCRAPER_GRPC_SERVICE_HOSTNAME
               value: "scraper-grpc"
             - name: STORY_DB_STRING
-              value: "postgresql://maxroach@cockroachdb-public:26257/story?sslmode=disable"
+              value: "postgresql://story_service@cockroachdb-public:26257/reader?sslmode=disable"

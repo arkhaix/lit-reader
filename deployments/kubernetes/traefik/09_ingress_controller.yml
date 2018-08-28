@@ -1,0 +1,50 @@
+# expose Traefik Ingress
+kind: Ingress
+apiVersion: extensions/v1beta1
+metadata:
+  name: traefik-ingress-frontend
+  annotations:
+    kubernetes.io/ingress.class: traefik
+    traefik.frontend.passHostHeader: "false"
+    traefik.frontend.priority: "1"
+    traefik.frontend.rule.type: PathPrefix
+spec:
+  rules:
+  - host: reader.arkhaix.com
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: reader
+          servicePort: 80
+  - host: cockroach.arkhaix.com
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: cockroachdb-public
+          servicePort: 8080
+---
+# expose Traefik Ingress
+kind: Ingress
+apiVersion: extensions/v1beta1
+metadata:
+  name: traefik-ingress-backend
+  annotations:
+    kubernetes.io/ingress.class: traefik
+    traefik.frontend.passHostHeader: "false"
+    traefik.frontend.priority: "2"
+    traefik.frontend.rule.type: PathPrefix
+spec:
+  rules:
+  - host: reader.arkhaix.com
+    http:
+      paths:
+      - path: /story
+        backend:
+          serviceName: story-http
+          servicePort: 8080
+      - path: /chapter
+        backend:
+          serviceName: chapter-http
+          servicePort: 8080

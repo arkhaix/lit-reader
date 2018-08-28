@@ -1,0 +1,18 @@
+# Declare Traefik ingress service
+kind: Service
+apiVersion: v1
+metadata:
+  name: traefik-service
+spec:
+  selector:
+    app: traefik
+    tier: reverse-proxy
+  ports:
+    - port: 80
+      name: http
+    - port: 443
+      name: https
+    - port: 8080
+      name: admin
+  type: LoadBalancer
+  loadBalancerIP: "35.221.232.135"
