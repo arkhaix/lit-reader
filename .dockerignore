@@ -4,8 +4,9 @@
 .travis.yml
 .vscode
 
-*.out
 *.epub
+*.out
+*.txt
 
 docker-all.sh
 docker-build.sh

@@ -19,4 +19,7 @@ before_script:
 
 script:
   - ./bin/golangci-lint run --enable-all -D megacheck -D lll -D dupl
-  - go test -v -race -tags=integration ./...
+  - go test -v -race -tags=integration -coverprofile=coverage.txt -covermode=atomic ./...
+
+after_success:
+  - bash <(curl -s https://codecov.io/bash)
