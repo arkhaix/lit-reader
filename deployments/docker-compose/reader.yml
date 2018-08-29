@@ -127,6 +127,17 @@ services:
       - esdata:/usr/share/elasticsearch/data
     ports:
       - 9200:9200
+  mongodb:
+    image: mongo:3
+    container_name: mongo
+    environment:
+      - MONGO_DATA_DIR=/data/db
+      - MONGO_LOG_DIR=/dev/null
+    ports:
+      - 27017:27017
+    volumes:
+      - mongo:/data/db
+    command: mongod --smallfiles --logpath=/dev/null
   reverse-proxy:
     image: traefik
     command: --api --docker
@@ -139,4 +150,6 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
 volumes:
   esdata:
+    driver: local
+  mongo:
     driver: local
