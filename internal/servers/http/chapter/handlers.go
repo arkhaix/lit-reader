@@ -51,12 +51,15 @@ func GetChapter(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	log.Debugf("RpcGood: GetChapter(%s): %d", storyID, chapterID, result.GetStatus().GetCode())
+	log.Debugf("RpcGood: GetChapter(%s, %d): %d", storyID, chapterID, result.GetStatus().GetCode())
 
 	// Output
 	response := newGetChapterResponse(result)
 	log.Debugf("Out: GetChapter(%s, %d): %d", storyID, chapterID, response.Status.Code)
-	render.Render(w, r, response)
+	err = render.Render(w, r, response)
+	if err != nil {
+		log.Errorf("Error rendering response: %s", err.Error())
+	}
 }
 
 type chapterResponse struct {

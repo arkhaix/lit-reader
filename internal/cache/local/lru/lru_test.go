@@ -48,8 +48,10 @@ func TestPutEvictsOldEntries(t *testing.T) {
 func TestGetRetrievesCorrectValue(t *testing.T) {
 	c := makeCache(t, 2)
 
-	c.Put(a, a, ttl)
-	c.Put(b, b, ttl)
+	err := c.Put(a, a, ttl)
+	assert.Nil(t, err)
+	err = c.Put(b, b, ttl)
+	assert.Nil(t, err)
 
 	v, ok := c.Get(a)
 	assert.True(t, ok)
@@ -63,7 +65,8 @@ func TestGetRetrievesCorrectValue(t *testing.T) {
 func TestGetWithMissingKeyFails(t *testing.T) {
 	c := makeCache(t, 1)
 
-	c.Put(a, a, ttl)
+	err := c.Put(a, a, ttl)
+	assert.Nil(t, err)
 
 	v, ok := c.Get(a)
 	assert.True(t, ok)
@@ -77,7 +80,8 @@ func TestGetWithMissingKeyFails(t *testing.T) {
 func TestGetWithExpiredEntryFails(t *testing.T) {
 	c := makeCache(t, 1)
 
-	c.Put(a, a, 50*time.Millisecond)
+	err := c.Put(a, a, 50*time.Millisecond)
+	assert.Nil(t, err)
 
 	time.Sleep(51 * time.Millisecond)
 
@@ -89,7 +93,8 @@ func TestGetWithExpiredEntryFails(t *testing.T) {
 func TestDelete(t *testing.T) {
 	c := makeCache(t, 1)
 
-	c.Put(a, a, ttl)
+	err := c.Put(a, a, ttl)
+	assert.Nil(t, err)
 
 	v, ok := c.Get(a)
 	assert.True(t, ok)
@@ -105,8 +110,10 @@ func TestDelete(t *testing.T) {
 func TestPurge(t *testing.T) {
 	c := makeCache(t, 2)
 
-	c.Put(a, a, ttl)
-	c.Put(b, b, ttl)
+	err := c.Put(a, a, ttl)
+	assert.Nil(t, err)
+	err = c.Put(b, b, ttl)
+	assert.Nil(t, err)
 
 	v, ok := c.Get(a)
 	assert.True(t, ok)

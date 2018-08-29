@@ -102,7 +102,12 @@ func (scraper Scraper) fetchStoryMetadata(path string) (common.Story, error) {
 		}
 	})
 
-	c.Visit(tocURL)
+	err := c.Visit(tocURL)
+	if err != nil {
+		return story, common.ScraperError{
+			Err: err,
+		}
+	}
 
 	if callbackError != nil {
 		return story, common.ScraperError{
@@ -165,7 +170,12 @@ func (scraper Scraper) FetchChapter(storyURL string, index int) (common.Chapter,
 	})
 
 	// fetch
-	c.Visit(chapterURL)
+	err = c.Visit(chapterURL)
+	if err != nil {
+		return chapter, common.ScraperError{
+			Err: err,
+		}
+	}
 
 	if callbackError != nil {
 		return chapter, common.NewScraperError(callbackError)

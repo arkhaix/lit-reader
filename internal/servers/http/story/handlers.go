@@ -30,7 +30,10 @@ func PostStory(w http.ResponseWriter, r *http.Request) {
 	// Parse params
 	requestData := &postStoryRequest{}
 	if err := render.Bind(r, requestData); err != nil {
-		render.Render(w, r, httpcommon.ErrInvalidRequest(err))
+		renderErr := render.Render(w, r, httpcommon.ErrInvalidRequest(err))
+		if renderErr != nil {
+			log.Errorf("Error rendering response: %s", err.Error())
+		}
 		return
 	}
 	storyURL := requestData.URL
@@ -54,7 +57,10 @@ func PostStory(w http.ResponseWriter, r *http.Request) {
 	// Output
 	response := newPostStoryResponse(result)
 	log.Debugf("Out: PostStory(%s): %d", storyURL, response.Status.Code)
-	render.Render(w, r, response)
+	renderErr := render.Render(w, r, response)
+	if renderErr != nil {
+		log.Errorf("Error rendering response: %s", err.Error())
+	}
 }
 
 // GetStory returns the metadata for a previously-scraped story.
@@ -82,11 +88,14 @@ func GetStory(w http.ResponseWriter, r *http.Request) {
 	// Output
 	response := newGetStoryResponse(result)
 	log.Debugf("Out: GetStory(%s): %d", id, response.Status.Code)
-	render.Render(w, r, response)
+	renderErr := render.Render(w, r, response)
+	if renderErr != nil {
+		log.Errorf("Error rendering response: %s", err.Error())
+	}
 }
 
 type postStoryRequest struct {
-	URL string `json: "Url"`
+	URL string `json:"Url"`
 }
 
 func (sr *postStoryRequest) Bind(r *http.Request) error {

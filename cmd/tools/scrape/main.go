@@ -115,13 +115,22 @@ func main() {
 
 	// Write the epub
 	fmt.Println("Writing epub...")
+	numEpubErrors := 0
 	e := epub.NewEpub(story.Title)
 	e.SetAuthor(story.Author)
 	for i := *firstChapter - 1; i < *lastChapter; i++ {
 		chapter := &story.Chapters[i]
-		e.AddSection(chapter.HTML, chapter.Title, "", "")
+		_, err := e.AddSection(chapter.HTML, chapter.Title, "", "")
+		if err != nil {
+			numEpubErrors++
+		}
 	}
-	e.Write(*epubFile)
+	err = e.Write(*epubFile)
+	if err == nil {
+		fmt.Printf("Finished writing epub with %d errors\n", numEpubErrors)
+	} else {
+		fmt.Println("Error writing epub file:", err)
+	}
 
 	fmt.Println("Done")
 }

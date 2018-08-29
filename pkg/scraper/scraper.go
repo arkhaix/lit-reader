@@ -14,7 +14,6 @@ import (
 )
 
 var scrapers []common.Scraper
-var storyCache common.Cache
 
 func init() {
 	sw := wrapper.NewScraperWrapper()

@@ -5,6 +5,8 @@ import (
 	"strings"
 	"time"
 
+	log "github.com/sirupsen/logrus"
+
 	"github.com/arkhaix/lit-reader/common"
 	"github.com/arkhaix/lit-reader/internal/cache/local/lru"
 )
@@ -53,7 +55,10 @@ func (s *ScraperWrapper) FetchStoryMetadata(url string, next FetchStoryMetadataF
 		storyBytes, err := json.Marshal(story)
 		if err == nil {
 			url = cacheKeyFromURL(url)
-			s.storyCache.Put(url, string(storyBytes), storyMetadataTTL)
+			err = s.storyCache.Put(url, string(storyBytes), storyMetadataTTL)
+			if err != nil {
+				log.Errorf("Failed to cache a story: %s", err.Error())
+			}
 		}
 	}
 
