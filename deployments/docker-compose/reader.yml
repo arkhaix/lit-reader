@@ -1,10 +1,15 @@
-version: '3'
+version: '2'
 services:
   reader:
     image: reader
     build:
       context: ../../
       dockerfile: ./build/reader.Dockerfile
+    container_name: reader
+    depends_on:
+      - elasticsearch
+      - story-http
+      - chapter-http
     labels:
       - "traefik.frontend.rule=Host:${READER_HOST}"
       - "traefik.port=${READER_PORT}"
@@ -14,11 +19,13 @@ services:
     build:
       context: ../../
       dockerfile: ./build/story-http.Dockerfile
+    container_name: story-http
     environment:
       - STORY_GRPC_SERVICE_HOSTNAME=story-grpc
       - STORY_GRPC_SERVICE_PORT=3000
       - STORY_HTTP_SERVICE_PORT=8080
     depends_on:
+      - elasticsearch
       - story-grpc
     labels:
       - "traefik.frontend.rule=Host:${READER_HOST};PathPrefix:/story"
@@ -29,11 +36,13 @@ services:
     build:
       context: ../../
       dockerfile: ./build/chapter-http.Dockerfile
+    container_name: chapter-http
     environment:
       - CHAPTER_GRPC_SERVICE_HOSTNAME=chapter-grpc
       - CHAPTER_GRPC_SERVICE_PORT=3000
       - CHAPTER_HTTP_SERVICE_PORT=8080
     depends_on:
+      - elasticsearch
       - chapter-grpc
     labels:
       - "traefik.frontend.rule=Host:${READER_HOST};PathPrefix:/chapter"
@@ -44,11 +53,13 @@ services:
     build:
       context: ../../
       dockerfile: ./build/story-grpc.Dockerfile
+    container_name: story-grpc
     environment:
       - SCRAPER_GRPC_SERVICE_HOSTNAME=scraper-grpc
       - SCRAPER_GRPC_SERVICE_PORT=3000
       - STORY_DB_STRING=postgresql://story_service@roach:26257/reader?sslmode=disable
     depends_on:
+      - elasticsearch
       - cockroach
       - scraper-grpc
   chapter-grpc:
@@ -56,6 +67,7 @@ services:
     build:
       context: ../../
       dockerfile: ./build/chapter-grpc.Dockerfile
+    container_name: chapter-grpc
     environment:
       - SCRAPER_GRPC_SERVICE_HOSTNAME=scraper-grpc
       - SCRAPER_GRPC_SERVICE_PORT=3000
@@ -63,6 +75,7 @@ services:
       - STORY_GRPC_SERVICE_PORT=3000
       - CHAPTER_DB_STRING=postgresql://chapter_service@roach:26257/reader?sslmode=disable
     depends_on:
+      - elasticsearch
       - cockroach
       - scraper-grpc
       - story-grpc
@@ -71,6 +84,7 @@ services:
     build:
       context: ../../
       dockerfile: ./build/scraper-grpc.Dockerfile
+    container_name: scraper-grpc
   cockroach:
     image: cockroachdb/cockroach:v2.0.5
     command: start --insecure
@@ -94,6 +108,25 @@ services:
       - cockroach
     environment:
       - COCKROACH_HOSTNAME=roach
+  elasticsearch:
+    image: elasticsearch
+    build:
+      context: ../../
+      dockerfile: ./build/elasticsearch.Dockerfile
+    container_name: elasticsearch
+    environment:
+      - cluster.name=docker-cluster
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    mem_limit: 1g
+    volumes:
+      - esdata:/usr/share/elasticsearch/data
+    ports:
+      - 9200:9200
   reverse-proxy:
     image: traefik
     command: --api --docker
@@ -104,3 +137,6 @@ services:
       - 8080:8080
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+volumes:
+  esdata:
+    driver: local

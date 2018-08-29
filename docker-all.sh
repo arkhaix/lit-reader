@@ -12,21 +12,8 @@ docker build -t reader -f ./build/reader.Dockerfile . &
 docker build -t cockroach-init -f ./build/cockroach-init.Dockerfile . &
 wait $(jobs -p)
 
-while getopts "cg" o; do
+while getopts "g" o; do
   case "${o}" in 
-    c)
-      # Tags for docker-compose
-      echo 'tagging for docker-compose'
-      docker tag chapter-grpc docker-compose_chapter-grpc &
-      docker tag chapter-http docker-compose_chapter-http &
-      docker tag scraper-grpc docker-compose_scraper-grpc &
-      docker tag story-grpc docker-compose_story-grpc &
-      docker tag story-http docker-compose_story-http &
-      docker tag reader docker-compose_reader &
-      docker tag cockroach-init docker-compose_cockroach-init &
-      wait $(jobs -p)
-      echo 'finished tagging for docker-compose'
-      ;;
     g)
       # Tag and push for gke
       echo 'tagging for gke'
