@@ -16,6 +16,5 @@ LICENSE
 protoc.sh
 README.md
 
-build
 cockroach-data
 deployments

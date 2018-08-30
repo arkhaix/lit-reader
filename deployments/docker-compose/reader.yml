@@ -10,10 +10,6 @@ services:
       - elasticsearch
       - story-http
       - chapter-http
-    labels:
-      - "traefik.frontend.rule=Host:${READER_HOST}"
-      - "traefik.port=${READER_PORT}"
-      - "traefik.enable=true"
   story-http:
     image: story-http
     build:
@@ -27,10 +23,6 @@ services:
     depends_on:
       - elasticsearch
       - story-grpc
-    labels:
-      - "traefik.frontend.rule=Host:${READER_HOST};PathPrefix:/story"
-      - "traefik.port=8080"
-      - "traefik.enable=true"
   chapter-http:
     image: chapter-http
     build:
@@ -44,10 +36,6 @@ services:
     depends_on:
       - elasticsearch
       - chapter-grpc
-    labels:
-      - "traefik.frontend.rule=Host:${READER_HOST};PathPrefix:/chapter"
-      - "traefik.port=8080"
-      - "traefik.enable=true"
   story-grpc:
     image: story-grpc
     build:
@@ -57,7 +45,7 @@ services:
     environment:
       - SCRAPER_GRPC_SERVICE_HOSTNAME=scraper-grpc
       - SCRAPER_GRPC_SERVICE_PORT=3000
-      - STORY_DB_STRING=postgresql://story_service@roach:26257/reader?sslmode=disable
+      - STORY_DB_STRING=postgresql://story_service@cockroach:26257/reader?sslmode=disable
     depends_on:
       - elasticsearch
       - cockroach
@@ -73,7 +61,7 @@ services:
       - SCRAPER_GRPC_SERVICE_PORT=3000
       - STORY_GRPC_SERVICE_HOSTNAME=story-grpc
       - STORY_GRPC_SERVICE_PORT=3000
-      - CHAPTER_DB_STRING=postgresql://chapter_service@roach:26257/reader?sslmode=disable
+      - CHAPTER_DB_STRING=postgresql://chapter_service@cockroach:26257/reader?sslmode=disable
     depends_on:
       - elasticsearch
       - cockroach
@@ -88,26 +76,45 @@ services:
   cockroach:
     image: cockroachdb/cockroach:v2.0.5
     command: start --insecure
-    container_name: roach
+    container_name: cockroach
     volumes:
-      - ./cockroach-data/roach:/cockroach/cockroach-data
+      - ./cockroach-data/cockroach:/cockroach/cockroach-data
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
-    labels:
-      - "traefik.backend=cockroach"
-      - "traefik.frontend.rule=Host:${COCKROACH_HOST}"
-      - "traefik.port=${COCKROACH_PORT}"
-      - "traefik.enable=true"
   cockroach-init:
     image: cockroach-init
     build:
       context: ../../
       dockerfile: ./build/cockroach-init.Dockerfile
     entrypoint: /cockroach/cr-init.sh
-    container_name: roach-init
+    container_name: cockroach-init
     depends_on:
       - cockroach
     environment:
-      - COCKROACH_HOSTNAME=roach
+      - COCKROACH_HOSTNAME=cockroach
+  graylog:
+    image: graylog/graylog:2.4
+    environment:
+      # CHANGE ME!
+      - GRAYLOG_PASSWORD_SECRET=somepasswordpepper
+      # Password: admin
+      - GRAYLOG_ROOT_PASSWORD_SHA2=8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918
+      - GRAYLOG_WEB_ENDPOINT_URI=http://graylog:9000
+      - GRAYLOG_REST_LISTEN_URI=http://0.0.0.0:9000/api
+      - GRAYLOG_REST_TRANSPORT_URI=http://graylog:9000/api
+      - GRAYLOG_REST_ENABLE_CORS=true
+      - GRAYLOG_REST_ENABLE_TLS=false
+      - GRAYLOG_WEB_ENABLE=true
+      - GRAYLOG_WEB_LISTEN_URI=http://0.0.0.0:9000
+      - GRAYLOG_WEB_TRANSPORT_URI=http://graylog:9000
+      - GRAYLOG_WEB_ENABLE_CORS=true
+      - GRAYLOG_ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+      - GRAYLOG_ELASTICSEARCH_SHARDS=1
+      - GRAYLOG_ELASTICSEARCH_REPLICAS=0
+    depends_on:
+      - mongo
+      - elasticsearch
+    volumes:
+      - graylog:/usr/share/graylog/data/journal
   elasticsearch:
     image: elasticsearch
     build:
@@ -127,7 +134,7 @@ services:
       - esdata:/usr/share/elasticsearch/data
     ports:
       - 9200:9200
-  mongodb:
+  mongo:
     image: mongo:3
     container_name: mongo
     environment:
@@ -139,17 +146,20 @@ services:
       - mongo:/data/db
     command: mongod --smallfiles --logpath=/dev/null
   reverse-proxy:
-    image: traefik
-    command: --api --docker
+    image: nginx-rproxy
+    container_name: nginx-rproxy
     restart: always
-    container_name: traefik
     ports:
       - 80:80
-      - 8080:8080
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
+    depends_on:
+      - reader
+      - story-http
+      - chapter-http
+      - cockroach
 volumes:
   esdata:
     driver: local
   mongo:
+    driver: local
+  graylog:
     driver: local
