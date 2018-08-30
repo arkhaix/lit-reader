@@ -1,16 +1,17 @@
-version: '3'
+version: '2'
 services:
   reader:
     image: reader
+    container_name: reader
     build:
       context: ../../
       dockerfile: ./build/reader.Dockerfile
-    labels:
-      - "traefik.frontend.rule=Host:${READER_HOST}"
-      - "traefik.port=${READER_PORT}"
-      - "traefik.enable=true"
+    depends_on:
+      - story-http
+      - chapter-http
   story-http:
     image: story-http
+    container_name: story-http
     build:
       context: ../../
       dockerfile: ./build/story-http.Dockerfile
@@ -20,12 +21,9 @@ services:
       - STORY_HTTP_SERVICE_PORT=8080
     depends_on:
       - story-grpc
-    labels:
-      - "traefik.frontend.rule=Host:${READER_HOST};PathPrefix:/story"
-      - "traefik.port=8080"
-      - "traefik.enable=true"
   chapter-http:
     image: chapter-http
+    container_name: chapter-http
     build:
       context: ../../
       dockerfile: ./build/chapter-http.Dockerfile
@@ -35,24 +33,22 @@ services:
       - CHAPTER_HTTP_SERVICE_PORT=8080
     depends_on:
       - chapter-grpc
-    labels:
-      - "traefik.frontend.rule=Host:${READER_HOST};PathPrefix:/chapter"
-      - "traefik.port=8080"
-      - "traefik.enable=true"
   story-grpc:
     image: story-grpc
+    container_name: story-grpc
     build:
       context: ../../
       dockerfile: ./build/story-grpc.Dockerfile
     environment:
       - SCRAPER_GRPC_SERVICE_HOSTNAME=scraper-grpc
       - SCRAPER_GRPC_SERVICE_PORT=3000
-      - STORY_DB_STRING=postgresql://story_service@roach:26257/reader?sslmode=disable
+      - STORY_DB_STRING=postgresql://story_service@cockroach:26257/reader?sslmode=disable
     depends_on:
       - cockroach
       - scraper-grpc
   chapter-grpc:
     image: chapter-grpc
+    container_name: chapter-grpc
     build:
       context: ../../
       dockerfile: ./build/chapter-grpc.Dockerfile
@@ -61,69 +57,65 @@ services:
       - SCRAPER_GRPC_SERVICE_PORT=3000
       - STORY_GRPC_SERVICE_HOSTNAME=story-grpc
       - STORY_GRPC_SERVICE_PORT=3000
-      - CHAPTER_DB_STRING=postgresql://chapter_service@roach:26257/reader?sslmode=disable
+      - CHAPTER_DB_STRING=postgresql://chapter_service@cockroach:26257/reader?sslmode=disable
     depends_on:
       - cockroach
       - scraper-grpc
       - story-grpc
   scraper-grpc:
     image: scraper-grpc
+    container_name: scraper-grpc
     build:
       context: ../../
       dockerfile: ./build/scraper-grpc.Dockerfile
   cockroach:
     image: cockroachdb/cockroach:v2.0.5
+    container_name: cockroach
     command: start --insecure
-    container_name: roach
     volumes:
-      - ./cockroach-data/roach:/cockroach/cockroach-data
+      - ./cockroach-data/cockroach:/cockroach/cockroach-data
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
-    labels:
-      - "traefik.backend=cockroach"
-      - "traefik.frontend.rule=Host:${COCKROACH_HOST}"
-      - "traefik.port=${COCKROACH_PORT}"
-      - "traefik.enable=true"
   cockroach-init:
     image: cockroach-init
+    container_name: cockroach-init
     build:
       context: ../../
       dockerfile: ./build/cockroach-init.Dockerfile
     entrypoint: /cockroach/cr-init.sh
-    container_name: roach-init
     depends_on:
       - cockroach
     environment:
-      - COCKROACH_HOSTNAME=roach
+      - COCKROACH_HOSTNAME=cockroach
   prometheus:
     image: prometheus
+    container_name: prometheus
     build:
       context: ../../
       dockerfile: ./build/prometheus.Dockerfile
-    container_name: prometheus
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
-    ports:
-      - 9090:9090
   grafana:
     image: grafana
+    container_name: grafana
     build:
       context: ../../
       dockerfile: ./build/grafana.Dockerfile
-    container_name: grafana
-    ports:
-      - 8090:3000
     volumes:
       - grafana-data:/var/lib/grafana
   reverse-proxy:
-    image: traefik
-    command: --api --docker
+    image: nginx-rproxy
+    container_name: nginx-rproxy
+    build:
+      context: ../../
+      dockerfile: ./build/nginx-rproxy.Dockerfile
     restart: always
-    container_name: traefik
     ports:
       - 80:80
-      - 8080:8080
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
+    depends_on:
+      - reader
+      - story-http
+      - chapter-http
+      - cockroach
 volumes:
   grafana-data:
     driver: local

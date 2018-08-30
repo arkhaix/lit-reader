@@ -1,2 +1,7 @@
 FROM prom/prometheus:v2.3.2
-COPY prometheus.yml /etc/prometheus/
+
+COPY build/prometheus/prometheus.yml /etc/prometheus/
+
+USER root
+RUN chown nobody:nogroup /etc/prometheus/prometheus.yml
+USER nobody

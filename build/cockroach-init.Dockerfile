@@ -1,3 +1,3 @@
 FROM cockroachdb/cockroach:v2.0.5
-COPY cr-init.sh /cockroach/
-COPY cr-init.sql /cockroach/
+COPY build/cockroach-init/cr-init.sh /cockroach/
+COPY build/cockroach-init/cr-init.sql /cockroach/
