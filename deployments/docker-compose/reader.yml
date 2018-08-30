@@ -1,4 +1,4 @@
-version: '2'
+version: '2.1'
 services:
   reader:
     image: reader
@@ -7,9 +7,9 @@ services:
       dockerfile: ./build/reader.Dockerfile
     container_name: reader
     depends_on:
-      - elasticsearch
-      - story-http
-      - chapter-http
+      story-http: { condition: service_started }
+      chapter-http: { condition: service_started }
+      elasticsearch: { condition: service_healthy }
   story-http:
     image: story-http
     build:
@@ -21,8 +21,9 @@ services:
       - STORY_GRPC_SERVICE_PORT=3000
       - STORY_HTTP_SERVICE_PORT=8080
     depends_on:
-      - elasticsearch
-      - story-grpc
+      story-grpc: { condition: service_started }
+      elasticsearch: { condition: service_healthy }
+
   chapter-http:
     image: chapter-http
     build:
@@ -34,8 +35,9 @@ services:
       - CHAPTER_GRPC_SERVICE_PORT=3000
       - CHAPTER_HTTP_SERVICE_PORT=8080
     depends_on:
-      - elasticsearch
-      - chapter-grpc
+      chapter-grpc: { condition: service_started }
+      elasticsearch: { condition: service_healthy }
+      
   story-grpc:
     image: story-grpc
     build:
@@ -47,9 +49,9 @@ services:
       - SCRAPER_GRPC_SERVICE_PORT=3000
       - STORY_DB_STRING=postgresql://story_service@cockroach:26257/reader?sslmode=disable
     depends_on:
-      - elasticsearch
-      - cockroach
-      - scraper-grpc
+      cockroach: { condition: service_started }
+      scraper-grpc: { condition: service_started }
+      elasticsearch: { condition: service_healthy }
   chapter-grpc:
     image: chapter-grpc
     build:
@@ -63,10 +65,10 @@ services:
       - STORY_GRPC_SERVICE_PORT=3000
       - CHAPTER_DB_STRING=postgresql://chapter_service@cockroach:26257/reader?sslmode=disable
     depends_on:
-      - elasticsearch
-      - cockroach
-      - scraper-grpc
-      - story-grpc
+      cockroach: { condition: service_started }
+      scraper-grpc: { condition: service_started }
+      story-grpc: { condition: service_started }
+      elasticsearch: { condition: service_healthy }
   scraper-grpc:
     image: scraper-grpc
     build:
@@ -88,33 +90,9 @@ services:
     entrypoint: /cockroach/cr-init.sh
     container_name: cockroach-init
     depends_on:
-      - cockroach
+      cockroach: { condition: service_started }
     environment:
       - COCKROACH_HOSTNAME=cockroach
-  graylog:
-    image: graylog/graylog:2.4
-    environment:
-      # CHANGE ME!
-      - GRAYLOG_PASSWORD_SECRET=somepasswordpepper
-      # Password: admin
-      - GRAYLOG_ROOT_PASSWORD_SHA2=8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918
-      - GRAYLOG_WEB_ENDPOINT_URI=http://graylog:9000
-      - GRAYLOG_REST_LISTEN_URI=http://0.0.0.0:9000/api
-      - GRAYLOG_REST_TRANSPORT_URI=http://graylog:9000/api
-      - GRAYLOG_REST_ENABLE_CORS=true
-      - GRAYLOG_REST_ENABLE_TLS=false
-      - GRAYLOG_WEB_ENABLE=true
-      - GRAYLOG_WEB_LISTEN_URI=http://0.0.0.0:9000
-      - GRAYLOG_WEB_TRANSPORT_URI=http://graylog:9000
-      - GRAYLOG_WEB_ENABLE_CORS=true
-      - GRAYLOG_ELASTICSEARCH_HOSTS=http://elasticsearch:9200
-      - GRAYLOG_ELASTICSEARCH_SHARDS=1
-      - GRAYLOG_ELASTICSEARCH_REPLICAS=0
-    depends_on:
-      - mongo
-      - elasticsearch
-    volumes:
-      - graylog:/usr/share/graylog/data/journal
   elasticsearch:
     image: elasticsearch
     build:
@@ -122,9 +100,10 @@ services:
       dockerfile: ./build/elasticsearch.Dockerfile
     container_name: elasticsearch
     environment:
-      - cluster.name=docker-cluster
       - bootstrap.memory_lock=true
       - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    healthcheck:
+      test: ["CMD", "curl","-s" ,"-f", "http://localhost:9200/_cat/health"]
     ulimits:
       memlock:
         soft: -1
@@ -134,17 +113,31 @@ services:
       - esdata:/usr/share/elasticsearch/data
     ports:
       - 9200:9200
-  mongo:
-    image: mongo:3
-    container_name: mongo
-    environment:
-      - MONGO_DATA_DIR=/data/db
-      - MONGO_LOG_DIR=/dev/null
-    ports:
-      - 27017:27017
+  logstash:
+    image: logstash
+    build:
+      context: ../../
+      dockerfile: ./build/logstash.Dockerfile
+    container_name: logstash
     volumes:
-      - mongo:/data/db
-    command: mongod --smallfiles --logpath=/dev/null
+      - lsdata:/usr/share/logstash/pipeline
+    ports:
+      - "5000:5000"
+    environment:
+      LS_JAVA_OPTS: "-Xmx256m -Xms256m"
+    depends_on:
+      elasticsearch: { condition: service_healthy }
+  kibana:
+    container_name: kibana
+    hostname: kibana
+    image: "docker.elastic.co/kibana/kibana:6.4.0"
+    depends_on:
+      elasticsearch: { condition: service_healthy }
+    healthcheck:
+      test: ["CMD", "curl", "-s", "-f", "http://localhost:5601/login"]
+      retries: 6
+    ports:
+      - 5601:5601
   reverse-proxy:
     image: nginx-rproxy
     container_name: nginx-rproxy
@@ -152,14 +145,12 @@ services:
     ports:
       - 80:80
     depends_on:
-      - reader
-      - story-http
-      - chapter-http
-      - cockroach
+      reader: { condition: service_started }
+      story-http: { condition: service_started }
+      chapter-http: { condition: service_started }
+      cockroach: { condition: service_started }
 volumes:
   esdata:
     driver: local
-  mongo:
-    driver: local
-  graylog:
+  lsdata:
     driver: local
