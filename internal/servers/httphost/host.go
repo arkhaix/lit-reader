@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/grpc-ecosystem/go-grpc-prometheus"
 	"google.golang.org/grpc"
 
 	"github.com/go-chi/chi"
@@ -50,7 +51,9 @@ func Host(app HostApp) {
 	// Set up gRPC client
 	grpcAddress, listenPort := getGRPCConfig(app)
 	log.Infof("Connecting to grpc host at %s", grpcAddress)
-	conn, err := grpc.Dial(grpcAddress, grpc.WithInsecure())
+	conn, err := grpc.Dial(grpcAddress, grpc.WithInsecure(),
+		grpc.WithUnaryInterceptor(grpc_prometheus.UnaryClientInterceptor),
+		grpc.WithStreamInterceptor(grpc_prometheus.StreamClientInterceptor))
 	if err != nil {
 		log.Fatalf("did not connect: %v", err)
 	}

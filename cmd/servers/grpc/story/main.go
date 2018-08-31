@@ -30,7 +30,9 @@ func main() {
 	// Connect to scraper
 	scraperAddress := scraperHost + ":" + scraperPort
 	log.Infof("Connecting to scraper host at %s", scraperAddress)
-	scraperConn, err := grpc.Dial(scraperAddress, grpc.WithInsecure())
+	scraperConn, err := grpc.Dial(scraperAddress, grpc.WithInsecure(),
+		grpc.WithUnaryInterceptor(grpc_prometheus.UnaryClientInterceptor),
+		grpc.WithStreamInterceptor(grpc_prometheus.StreamClientInterceptor))
 	if err != nil {
 		log.Fatalf("Failed to connect to scraper service: %v", err)
 	}

@@ -33,7 +33,10 @@ func main() {
 	// Connect to scraper
 	scraperAddress := scraperHost + ":" + scraperPort
 	log.Infof("Connecting to scraper host at %s", scraperAddress)
-	scraperConn, err := grpc.Dial(scraperAddress, grpc.WithInsecure())
+	scraperConn, err := grpc.Dial(scraperAddress,
+		grpc.WithInsecure(),
+		grpc.WithUnaryInterceptor(grpc_prometheus.UnaryClientInterceptor),
+		grpc.WithStreamInterceptor(grpc_prometheus.StreamClientInterceptor))
 	if err != nil {
 		log.Fatalf("Failed to connect to scraper service: %v", err)
 	}
@@ -42,7 +45,10 @@ func main() {
 	// Connect to story
 	storyAddress := storyHost + ":" + storyPort
 	log.Infof("Connecting to story host at %s", storyAddress)
-	storyConn, err := grpc.Dial(storyAddress, grpc.WithInsecure())
+	storyConn, err := grpc.Dial(storyAddress,
+		grpc.WithInsecure(),
+		grpc.WithUnaryInterceptor(grpc_prometheus.UnaryClientInterceptor),
+		grpc.WithStreamInterceptor(grpc_prometheus.StreamClientInterceptor))
 	if err != nil {
 		log.Fatalf("Failed to connect to story service: %v", err)
 	}
