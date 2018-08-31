@@ -1,0 +1,20 @@
+global:
+  scrape_interval: 5s
+  external_labels:
+    monitor: 'my-monitor'
+scrape_configs:
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+  - job_name: 'story-http'
+    static_configs:
+      - targets: ['story-http']
+  - job_name: 'chapter-http'
+    static_configs:
+      - targets: ['chapter-http']
+  - job_name: 'story-grpc'
+    static_configs:
+      - targets: ['story-grpc']
+  - job_name: 'chapter-grpc'
+    static_configs:
+      - targets: ['chapter-grpc']

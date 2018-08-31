@@ -110,7 +110,6 @@ func setUpRouter(app HostApp) *chi.Mux {
 	// Prometheus
 	m := chiprometheus.NewMiddleware(app.GetName())
 	r.Use(m)
-	r.Handle("/metrics", prometheus.Handler())
 
 	// JSON
 	r.Use(render.SetContentType(render.ContentTypeJSON))
@@ -129,6 +128,7 @@ func setUpRouter(app HostApp) *chi.Mux {
 	r.Use(cors.Handler)
 
 	// Routes must be defined after all middlewares
+	r.Handle("/metrics", prometheus.Handler())
 	app.DefineRoutes(r)
 	docgen.PrintRoutes(r)
 
