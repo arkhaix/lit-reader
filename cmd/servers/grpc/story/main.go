@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	"net"
+	"net/http"
 	"time"
 
 	"github.com/grpc-ecosystem/go-grpc-middleware"
@@ -11,6 +12,7 @@ import (
 	"google.golang.org/grpc/reflection"
 
 	_ "github.com/lib/pq"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	log "github.com/sirupsen/logrus"
 
 	"github.com/arkhaix/lit-reader/common"
@@ -68,6 +70,10 @@ func main() {
 			grpc_prometheus.UnaryServerInterceptor,
 		)),
 	)
+
+	// Serve prometheus metrics
+	http.Handle("/metrics", promhttp.Handler())
+	go func() { log.Debug(http.ListenAndServe(":8080", nil)) }()
 
 	// Serve
 	apistory.RegisterStoryServiceServer(s, &storyServer)

@@ -8,13 +8,16 @@ scrape_configs:
       - targets: ['localhost:9090']
   - job_name: 'story-http'
     static_configs:
-      - targets: ['story-http']
+      - targets: ['story-http:8080']
   - job_name: 'chapter-http'
     static_configs:
-      - targets: ['chapter-http']
+      - targets: ['chapter-http:8080']
   - job_name: 'story-grpc'
     static_configs:
-      - targets: ['story-grpc']
+      - targets: ['story-grpc:8080']
   - job_name: 'chapter-grpc'
     static_configs:
-      - targets: ['chapter-grpc']
+      - targets: ['chapter-grpc:8080']
+  - job_name: 'scraper-grpc'
+    static_configs:
+      - targets: ['scraper-grpc:8080']

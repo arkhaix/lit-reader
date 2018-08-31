@@ -36,7 +36,7 @@ func TestArchiveOfOurOwnIntegration(t *testing.T) {
 	assert.Equal(t, expectedURL, story.URL, "URL must match")
 	assert.Equal(t, expectedTitle, story.Title, "Title must match")
 	assert.Equal(t, expectedAuthor, story.Author, "Author must match")
-	assert.Equal(t, expectedChapters, len(story.Chapters), "Number of chapters must match")
+	assert.True(t, len(story.Chapters) >= expectedChapters, "Number of chapters must be at least 118")
 
 	// Validate the data for a chapter
 	c, err := s.FetchChapter(storyURL, 0)

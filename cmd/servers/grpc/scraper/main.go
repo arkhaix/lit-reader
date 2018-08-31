@@ -2,6 +2,7 @@ package main
 
 import (
 	"net"
+	"net/http"
 	"os"
 
 	"github.com/grpc-ecosystem/go-grpc-middleware"
@@ -9,6 +10,7 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	log "github.com/sirupsen/logrus"
 
 	api "github.com/arkhaix/lit-reader/api/scraper"
@@ -47,6 +49,10 @@ func main() {
 			grpc_prometheus.UnaryServerInterceptor,
 		)),
 	)
+
+	// Serve prometheus metrics
+	http.Handle("/metrics", promhttp.Handler())
+	go func() { log.Debug(http.ListenAndServe(":8080", nil)) }()
 
 	api.RegisterScraperServiceServer(s, &server.Server{})
 	reflection.Register(s)
