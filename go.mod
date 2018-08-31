@@ -19,6 +19,8 @@ require (
 	github.com/gocolly/colly v1.0.0
 	github.com/golang/glog v0.0.0-20160126235308-23def4e6c14b // indirect
 	github.com/golang/protobuf v1.1.0
+	github.com/grpc-ecosystem/go-grpc-middleware v1.0.0
+	github.com/grpc-ecosystem/go-grpc-prometheus v1.2.0
 	github.com/hashicorp/golang-lru v0.0.0-20180201235237-0fb14efe8c47
 	github.com/hpcloud/tail v1.0.0 // indirect
 	github.com/kennygrant/sanitize v1.2.4 // indirect
