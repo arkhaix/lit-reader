@@ -12,10 +12,15 @@ import (
 	"github.com/go-chi/render"
 
 	log "github.com/sirupsen/logrus"
+
+	chiprometheus "github.com/766b/chi-prometheus"
+	"github.com/prometheus/client_golang/prometheus"
 )
 
 // HostApp is the interface each /cmd/ app must implement
 type HostApp interface {
+	GetName() string
+
 	// GetParams must return the httphost.Params configuration
 	GetParams() *Params
 
@@ -98,6 +103,11 @@ func getGRPCConfig(app HostApp) (grpcAddress string, listenPort string) {
 
 func setUpRouter(app HostApp) *chi.Mux {
 	r := chi.NewRouter()
+
+	// Prometheus
+	m := chiprometheus.NewMiddleware(app.GetName())
+	r.Use(m)
+	r.Handle("/metrics", prometheus.Handler())
 
 	// JSON
 	r.Use(render.SetContentType(render.ContentTypeJSON))
