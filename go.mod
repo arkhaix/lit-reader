@@ -1,11 +1,13 @@
 module github.com/arkhaix/lit-reader
 
 require (
+	github.com/766b/chi-prometheus v0.0.0-20180509160047-46ac2b31aa30
 	github.com/PuerkitoBio/goquery v1.4.1 // indirect
 	github.com/andybalholm/cascadia v1.0.0 // indirect
 	github.com/antchfx/htmlquery v0.0.0-20180726134113-496ad84c8a0c // indirect
 	github.com/antchfx/xmlquery v0.0.0-20180726134140-2805f22c26c4 // indirect
 	github.com/antchfx/xpath v0.0.0-20180524052354-077bca4d2caa // indirect
+	github.com/beorn7/perks v0.0.0-20180321164747-3a771d992973 // indirect
 	github.com/bmaupin/go-epub v0.2.2
 	github.com/davecgh/go-spew v1.1.1
 	github.com/fsnotify/fsnotify v1.4.7 // indirect
@@ -17,14 +19,21 @@ require (
 	github.com/gocolly/colly v1.0.0
 	github.com/golang/glog v0.0.0-20160126235308-23def4e6c14b // indirect
 	github.com/golang/protobuf v1.1.0
+	github.com/grpc-ecosystem/go-grpc-middleware v1.0.0
+	github.com/grpc-ecosystem/go-grpc-prometheus v1.2.0
 	github.com/hashicorp/golang-lru v0.0.0-20180201235237-0fb14efe8c47
 	github.com/hpcloud/tail v1.0.0 // indirect
 	github.com/kennygrant/sanitize v1.2.4 // indirect
 	github.com/lib/pq v0.0.0-20180822103908-55f6f2718ccb
+	github.com/matttproud/golang_protobuf_extensions v1.0.1 // indirect
 	github.com/microcosm-cc/bluemonday v1.0.1
 	github.com/onsi/ginkgo v1.6.0 // indirect
 	github.com/onsi/gomega v1.4.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
+	github.com/prometheus/client_golang v0.8.0
+	github.com/prometheus/client_model v0.0.0-20180712105110-5c3871d89910 // indirect
+	github.com/prometheus/common v0.0.0-20180801064454-c7de2306084e // indirect
+	github.com/prometheus/procfs v0.0.0-20180725123919-05ee40e3a273 // indirect
 	github.com/saintfish/chardet v0.0.0-20120816061221-3af4cd4741ca // indirect
 	github.com/satori/go.uuid v0.0.0-20170815183926-0ca0c2cf9e6f // indirect
 	github.com/sirupsen/logrus v1.0.6

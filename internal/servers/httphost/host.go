@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/grpc-ecosystem/go-grpc-prometheus"
 	"google.golang.org/grpc"
 
 	"github.com/go-chi/chi"
@@ -12,10 +13,15 @@ import (
 	"github.com/go-chi/render"
 
 	log "github.com/sirupsen/logrus"
+
+	chiprometheus "github.com/766b/chi-prometheus"
+	"github.com/prometheus/client_golang/prometheus"
 )
 
 // HostApp is the interface each /cmd/ app must implement
 type HostApp interface {
+	GetName() string
+
 	// GetParams must return the httphost.Params configuration
 	GetParams() *Params
 
@@ -45,7 +51,9 @@ func Host(app HostApp) {
 	// Set up gRPC client
 	grpcAddress, listenPort := getGRPCConfig(app)
 	log.Infof("Connecting to grpc host at %s", grpcAddress)
-	conn, err := grpc.Dial(grpcAddress, grpc.WithInsecure())
+	conn, err := grpc.Dial(grpcAddress, grpc.WithInsecure(),
+		grpc.WithUnaryInterceptor(grpc_prometheus.UnaryClientInterceptor),
+		grpc.WithStreamInterceptor(grpc_prometheus.StreamClientInterceptor))
 	if err != nil {
 		log.Fatalf("did not connect: %v", err)
 	}
@@ -99,6 +107,10 @@ func getGRPCConfig(app HostApp) (grpcAddress string, listenPort string) {
 func setUpRouter(app HostApp) *chi.Mux {
 	r := chi.NewRouter()
 
+	// Prometheus
+	m := chiprometheus.NewMiddleware(app.GetName())
+	r.Use(m)
+
 	// JSON
 	r.Use(render.SetContentType(render.ContentTypeJSON))
 
@@ -116,6 +128,7 @@ func setUpRouter(app HostApp) *chi.Mux {
 	r.Use(cors.Handler)
 
 	// Routes must be defined after all middlewares
+	r.Handle("/metrics", prometheus.Handler())
 	app.DefineRoutes(r)
 	docgen.PrintRoutes(r)
 

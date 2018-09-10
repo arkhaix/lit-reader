@@ -2,11 +2,15 @@ package main
 
 import (
 	"net"
+	"net/http"
 	"os"
 
+	"github.com/grpc-ecosystem/go-grpc-middleware"
+	"github.com/grpc-ecosystem/go-grpc-prometheus"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	log "github.com/sirupsen/logrus"
 
 	api "github.com/arkhaix/lit-reader/api/scraper"
@@ -35,7 +39,21 @@ func main() {
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
-	s := grpc.NewServer()
+
+	// gRPC middleware
+	s := grpc.NewServer(
+		grpc.StreamInterceptor(grpc_middleware.ChainStreamServer(
+			grpc_prometheus.StreamServerInterceptor,
+		)),
+		grpc.UnaryInterceptor(grpc_middleware.ChainUnaryServer(
+			grpc_prometheus.UnaryServerInterceptor,
+		)),
+	)
+
+	// Serve prometheus metrics
+	http.Handle("/metrics", promhttp.Handler())
+	go func() { log.Debug(http.ListenAndServe(":8080", nil)) }()
+
 	api.RegisterScraperServiceServer(s, &server.Server{})
 	reflection.Register(s)
 	log.Info("Serving grpc on", lis.Addr().String())

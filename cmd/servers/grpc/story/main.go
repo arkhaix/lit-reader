@@ -3,12 +3,16 @@ package main
 import (
 	"database/sql"
 	"net"
+	"net/http"
 	"time"
 
+	"github.com/grpc-ecosystem/go-grpc-middleware"
+	"github.com/grpc-ecosystem/go-grpc-prometheus"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 
 	_ "github.com/lib/pq"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	log "github.com/sirupsen/logrus"
 
 	"github.com/arkhaix/lit-reader/common"
@@ -28,7 +32,9 @@ func main() {
 	// Connect to scraper
 	scraperAddress := scraperHost + ":" + scraperPort
 	log.Infof("Connecting to scraper host at %s", scraperAddress)
-	scraperConn, err := grpc.Dial(scraperAddress, grpc.WithInsecure())
+	scraperConn, err := grpc.Dial(scraperAddress, grpc.WithInsecure(),
+		grpc.WithUnaryInterceptor(grpc_prometheus.UnaryClientInterceptor),
+		grpc.WithStreamInterceptor(grpc_prometheus.StreamClientInterceptor))
 	if err != nil {
 		log.Fatalf("Failed to connect to scraper service: %v", err)
 	}
@@ -55,8 +61,21 @@ func main() {
 		log.Fatalf("failed to listen: %v", err)
 	}
 
+	// gRPC middleware
+	s := grpc.NewServer(
+		grpc.StreamInterceptor(grpc_middleware.ChainStreamServer(
+			grpc_prometheus.StreamServerInterceptor,
+		)),
+		grpc.UnaryInterceptor(grpc_middleware.ChainUnaryServer(
+			grpc_prometheus.UnaryServerInterceptor,
+		)),
+	)
+
+	// Serve prometheus metrics
+	http.Handle("/metrics", promhttp.Handler())
+	go func() { log.Debug(http.ListenAndServe(":8080", nil)) }()
+
 	// Serve
-	s := grpc.NewServer()
 	apistory.RegisterStoryServiceServer(s, &storyServer)
 	reflection.Register(s)
 	log.Info("Serving grpc on", lis.Addr().String())

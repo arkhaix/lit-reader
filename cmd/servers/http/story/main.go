@@ -16,6 +16,10 @@ import (
 // hostApp implements httphost.HostApp
 type hostApp struct{}
 
+func (*hostApp) GetName() string {
+	return "story"
+}
+
 func (*hostApp) GetParams() *httphost.Params {
 	return &httphost.Params{
 		EnvVarListenPort:  "STORY_HTTP_SERVICE_PORT",

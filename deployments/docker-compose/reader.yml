@@ -94,6 +94,26 @@ services:
       - cockroach
     environment:
       - COCKROACH_HOSTNAME=roach
+  prometheus:
+    image: prometheus
+    build:
+      context: ../../
+      dockerfile: ./build/prometheus.Dockerfile
+    container_name: prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+    ports:
+      - 9090:9090
+  grafana:
+    image: grafana
+    build:
+      context: ../../
+      dockerfile: ./build/grafana.Dockerfile
+    container_name: grafana
+    ports:
+      - 8090:3000
+    volumes:
+      - grafana-data:/var/lib/grafana
   reverse-proxy:
     image: traefik
     command: --api --docker
@@ -104,3 +124,6 @@ services:
       - 8080:8080
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+volumes:
+  grafana-data:
+    driver: local
